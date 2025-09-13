@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verdade ou Consequência - Multiplayer com Níveis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        h1 {
+            color: #6e8efb;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+        }
+        
+        h2 {
+            color: #6e8efb;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+        
+        h3 {
+            color: #a777e3;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: #6e8efb;
+            outline: none;
+        }
+        
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 5px;
+            width: calc(100% - 10px);
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-verde {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .btn-vermelho {
+            background-color: #FF5252;
+            color: white;
+        }
+        
+        .btn-amarelo {
+            background-color: #FFC107;
+            color: white;
+        }
+        
+        .btn-azul {
+            background-color: #6e8efb;
+            color: white;
+        }
+        
+        .btn-roxo {
+            background-color: #a777e3;
+            color: white;
+        }
+        
+        .btn-laranja {
+            background-color: #FF9800;
+            color: white;
+        }
+        
+        .level-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        .level-1 { background-color: #4CAF50; color: white; }
+        .level-2 { background-color: #FFC107; color: black; }
+        .level-3 { background-color: #FF9800; color: white; }
+        .level-4 { background-color: #F44336; color: white; }
+        
+        .result {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 18px;
+            border-left: 5px solid #a777e3;
+        }
+        
+        .player-turn {
+            font-weight: bold;
+            color: #6e8efb;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .action-buttons button {
+            width: auto;
+            min-width: 140px;
+        }
+        
+        .ranking {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            display: none;
+        }
+        
+        .ranking h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #6e8efb;
+        }
+        
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+        
+        .ranking-header {
+            font-weight: bold;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        
+        .mode-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .mode-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+        
+        .level-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .level-btn {
+            padding: 12px;
+        }
+        
+        .active-mode {
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+            transform: scale(1.02);
+        }
+        
+        .active-level {
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+            transform: scale(1.02);
+        }
+        
+        .level-info {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+            text-align: center;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 24px;
+            }
+            
+            button {
+                font-size: 14px;
+                padding: 12px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-buttons button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            
+            .level-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 Verdade ou Consequência</h1>
+            <p class="description">Um jogo divertido para desafiar seus amigos!</p>
+        </header>
+        
+        <div id="setupSection" class="section">
+            <h2>👥 Configuração do Jogo</h2>
+            <input type="number" id="numPlayers" min="2" max="10" placeholder="Número de jogadores">
+            
+            <h3>🎯 Selecione o Modo de Jogo</h3>
+            <div class="mode-selector">
+                <button id="modeSurpreenda" class="btn-roxo mode-btn" onclick="selectMode('surpreenda')">Surpreenda-me! 🎲</button>
+                <button id="modeSelecionavel" class="btn-azul mode-btn" onclick="selectMode('selecionavel')">Selecionável ⚙️</button>
+            </div>
+            
+            <div id="levelSelector" class="level-selector" style="display: none;">
+                <button id="level1" class="btn-verde level-btn" onclick="toggleLevel(1)">Nível 1: Leve</button>
+                <button id="level2" class="btn-amarelo level-btn" onclick="toggleLevel(2)">Nível 2: Picante</button>
+                <button id="level3" class="btn-laranja level-btn" onclick="toggleLevel(3)">Nível 3: Proibido</button>
+                <button id="level4" class="btn-vermelho level-btn" onclick="toggleLevel(4)">Nível 4: Pegando Fogo!</button>
+                <p class="level-info">Selecione de 1 a 3 níveis para jogar</p>
+            </div>
+            
+            <button class="btn-azul" onclick="setupPlayers()">Definir Jogadores</button>
+            
+            <div id="playerNames" style="display: none;">
+                <h2>🎯 Nomes dos Jogadores</h2>
+                <div id="nameInputs"></div>
+                <button class="btn-roxo" onclick="startGame()">Iniciar Jogo</button>
+            </div>
+        </div>
+        
+        <div id="gameSection" class="section" style="display: none;">
+            <h2>🎲 Jogo - <span id="currentMode"></span></h2>
+            <div class="player-turn" id="currentPlayer">Jogador atual: </div>
+            
+            <div class="buttons">
+                <button class="btn-verde" onclick="escolherVerdade()">Verdade</button>
+                <button class="btn-vermelho" onclick="escolherConsequencia()">Consequência</button>
+                <button class="btn-amarelo" onclick="mostrarRanking()">Ver Ranking</button>
+                <button class="btn-azul" onclick="sortearJogador()">Sortear Próximo Jogador</button>
+            </div>
+            
+            <div class="result" id="result">
+                Clique em um botão para começar o jogo!
+            </div>
+            
+            <div class="action-buttons" id="actionButtons" style="display: none;">
+                <button id="btnRespondeu" class="btn-verde" onclick="respondeu()">Respondeu ✓</button>
+                <button id="btnNaoRespondeu" class="btn-vermelho" onclick="naoRespondeu()">Não Respondeu ✗</button>
+                <button id="btnCumpriu" class="btn-verde" onclick="cumpriu()">Cumpriu ✓</button>
+                <button id="btnNaoCumpriu" class="btn-vermelho" onclick="naoCumpriu()">Não Cumpriu ✗</button>
+            </div>
+        </div>
+        
+        <div class="ranking" id="ranking">
+            <h2>📊 Ranking</h2>
+            <div class="ranking-item ranking-header">
+                <span>Jogador</span>
+                <span>Pontos</span>
+            </div>
+            <div id="rankingList"></div>
+            <button class="btn-azul" onclick="voltarAoJogo()">Voltar ao Jogo</button>
+        </div>
+        
+        <footer>
+            <p>Desenvolvido com tesão 🥵🔥 para diversão entre amigos e casais bem safados 😈 🌶️</p>
+        </footer>
+    </div>
+
+    <script>
+        // Variáveis do jogo
+        let ranking = {};
+        let players = [];
+        let currentPlayerIndex = 0;
+        let currentAction = null; // 'verdade' ou 'consequencia'
+        let gameMode = null; // 'surpreenda' ou 'selecionavel'
+        let selectedLevels = []; // Array com níveis selecionados (apenas no modo selecionável)
+        let playerLevels = {}; // Nível atual de cada jogador (para modo surpreenda-me)
+        
+        // Lista de perguntas/desafios por nível
+        const verdades = {
+            1: [
+                "Qual sua cor favorita?",
+                "Qual seu animal preferido?",
+                "O que você mais gosta de fazer nos finais de semana?",
+                "Qual seu prato de comida favorito?",
+                "Se pudesse viajar para qualquer lugar, para onde iria?",
+                "Qual seu filme preferido?",
+                "Que tipo de música você mais gosta?",
+                "Qual foi o melhor presente que já recebeu?",
+                "O que te deixa realmente feliz?",
+                "Qual seu hobby favorito?"
+            ],
+            2: [
+                "Qual foi a coisa mais engraçada que já te aconteceu?",
+                "Já mentiu para escapar de uma situação constrangedora?",
+                "Qual seu maior medo?",
+                "Qual foi a coisa mais embaraçosa que já fez?",
+                "Já traiu a confiança de alguém?",
+                "Qual seu sonho mais maluco?",
+                "Se pudesse ser invisível por um dia, o que faria?",
+                "Qual foi a maior mentira que já contou?",
+                "O que você mais esconde das pessoas?",
+                "Qual foi a pior nota que já tirou na escola?"
+            ],
+            3: [
+                "Já teve um crush por um professor ou professora?",
+                "Qual a coisa mais ilegal que já fez?",
+                "Já flirtou com o(a) namorado(a) de um amigo?",
+                "Qual seu fetiche mais estranho?",
+                "Já deu em cima de alguém comprometido?",
+                "Qual a pior traição que já cometeu?",
+                "Já mentiu para conseguir algo que queria?",
+                "Qual a coisa mais perigosa que já fez?",
+                "Já se arrependeu de beijar alguém? Quem?",
+                "Qual seu segredo mais obscuro?"
+            ],
+            4: [
+                "Com quantas pessoas você já ficou?",
+                "Já traiu algum parceiro romântico?",
+                "Qual a pior coisa que já fez para se dar bem?",
+                "Já se envolveu em uma relação a três?",
+                "Qual a fantasia sexual mais estranha que já teve?",
+                "Já sentiu atração por um parente?",
+                "Qual a coisa mais pervertida que já fez?",
+                "Já fez algo imoral por dinheiro?",
+                "Qual o lugar mais incomum onde já fez sexo?",
+                "Já se apaixonou pelo parceiro de alguém?"
+            ]
+        };
+        
+        const consequencias = {
+            1: [
+                "Mande uma mensagem de bom dia para alguém do grupo.",
+                "Conte uma piada para todos.",
+                "Imita um animal de sua escolha.",
+                "Poste uma foto sua de infância no status.",
+                "Dance por 30 segundos.",
+                "Cante um trecho de uma música.",
+                "Faça 10 polichinelos.",
+                "Abrace alguém do grupo.",
+                "Diga três elogios para a pessoa à sua direita.",
+                "Finja que é um super-herói por 1 minuto."
+            ],
+            2: [
+                "Ligue para um amigo e cante parabéns.",
+                "Poste uma mensagem misteriosa no status.",
+                "Faça 20 agachamentos.",
+                "Use uma peça de roupa do avesso por uma hora.",
+                "Fale com sotaque estrangeiro por 10 minutos.",
+                "Troque de perfil com alguém nas redes sociais por 1 hora.",
+                "Coma algo sem usar as mãos.",
+                "Finja que é um influencer por 5 minutos.",
+                "Mande um áudio cantando uma música romântica.",
+                "Faça uma declaração de amor para um objeto inanimado."
+            ],
+            3: [
+                "Mande uma mensagem de amor para um contato aleatório.",
+                "Ligue para seu ex e diga que sente saudades (e grave a reação).",
+                "Poste uma foto embaraçosa sua no Instagram.",
+                "Beije o pé de alguém do grupo.",
+                "Coma uma colher de um condimento escolhido pelo grupo.",
+                "Deixe que o grupo poste o que quiser em suas redes sociais.",
+                "Finja um orgasmo em público.",
+                "Faça uma strip-tease improvisada.",
+                "Mande um áudio se declarando para o último contato do seu WhatsApp.",
+                "Conte um segredo íntimo para o grupo."
+            ],
+            4: [
+                "Ligue para seu crush e declare seu amor.",
+                "Deixe o grupo ver suas conversas do WhatsApp por 2 minutos.",
+                "Poste uma foto sensual no status.",
+                "Beije o pescoço da pessoa à sua esquerda.",
+                "Remova uma peça de roupa.",
+                "Simule uma cena de novela com a pessoa à sua direita.",
+                "Deixe que o grupo defina sua bio nas redes sociais por 24h.",
+                "Faça um striptease de 1 minuto.",
+                "Mande uma mensagem picante para o último contato do seu telefone.",
+                "Conte em detalhes sua primeira vez."
+            ]
+        };
+        
+        // Configuração dos jogadores
+        function setupPlayers() {
+            if (!gameMode) {
+                alert("Por favor, selecione um modo de jogo primeiro!");
+                return;
+            }
+            
+            if (gameMode === 'selecionavel' && selectedLevels.length === 0) {
+                alert("Por favor, selecione pelo menos um nível de jogo!");
+                return;
+            }
+            
+            if (gameMode === 'selecionavel' && selectedLevels.length > 3) {
+                alert("Por favor, selecione no máximo 3 níveis!");
+                return;
+            }
+            
+            const numPlayers = parseInt(document.getElementById('numPlayers').value);
+            
+            if (isNaN(numPlayers) || numPlayers < 2) {
+                alert("Por favor, insira um número válido de jogadores (mínimo 2)");
+                return;
+            }
+            
+            let nameInputsHTML = '';
+            for (let i = 0; i < numPlayers; i++) {
+                nameInputsHTML += `<input type="text" id="player${i}" placeholder="Nome do Jogador ${i+1}">`;
+            }
+            
+            document.getElementById('nameInputs').innerHTML = nameInputsHTML;
+            document.getElementById('playerNames').style.display = 'block';
+        }
+        
+        // Selecionar modo de jogo
+        function selectMode(mode) {
+            gameMode = mode;
+            
+            // Destacar o modo selecionado
+            document.getElementById('modeSurpreenda').classList.remove('active-mode');
+            document.getElementById('modeSelecionavel').classList.remove('active-mode');
+            document.getElementById(`mode${mode.charAt(0).toUpperCase() + mode.slice(1)}`).classList.add('active-mode');
+            
+            document.getElementById('currentMode').textContent = mode === 'surpreenda' ? 'Modo Surpreenda-me' : 'Modo Selecionável';
+            
+            if (mode === 'selecionavel') {
+                document.getElementById('levelSelector').style.display = 'grid';
+            } else {
+                document.getElementById('levelSelector').style.display = 'none';
+                selectedLevels = [];
+                
+                // Remover destaque de qualquer nível selecionado
+                document.querySelectorAll('.level-btn').forEach(btn => {
+                    btn.classList.remove('active-level');
+                });
+            }
+        }
+        
+        // Selecionar/deselecionar nível
+        function toggleLevel(level) {
+            if (gameMode !== 'selecionavel') return;
+            
+            const index = selectedLevels.indexOf(level);
+            
+            if (index === -1) {
+                // Adicionar nível se não estiver selecionado e não exceder o limite
+                if (selectedLevels.length < 3) {
+                    selectedLevels.push(level);
+                    document.getElementById(`level${level}`).classList.add('active-level');
+                } else {
+                    alert("Você pode selecionar no máximo 3 níveis, ou Selecione o Modo Acima!");
+                }
+            } else {
+                // Remover nível se já estiver selecionado
+                selectedLevels.splice(index, 1);
+                document.getElementById(`level${level}`).classList.remove('active-level');
+            }
+        }
+        
+        // Iniciar o jogo
+        function startGame() {
+            const numPlayers = parseInt(document.getElementById('numPlayers').value);
+            players = [];
+            
+            // Coletar nomes dos jogadores
+            for (let i = 0; i < numPlayers; i++) {
+                const playerName = document.getElementById(`player${i}`).value.trim();
+                if (playerName === '') {
+                    alert(`Por favor, insira o nome do Jogador ${i+1}`);
+                    return;
+                }
+                players.push(playerName);
+                
+                // Inicializar ranking
+                if (!ranking[playerName]) {
+                    ranking[playerName] = 0;
+                }
+                
+                // Inicializar nível do jogador (apenas para modo surpreenda-me)
+                if (gameMode === 'surpreenda') {
+                    playerLevels[playerName] = 1;
+                }
+            }
+            
+            // Esconder seção de configuração e mostrar seção de jogo
+            document.getElementById('setupSection').style.display = 'none';
+            document.getElementById('gameSection').style.display = 'block';
+            
+            // Sortear o primeiro jogador
+            sortearJogador();
+        }
+        
+        // Sortear um jogador
+        function sortearJogador() {
+            currentPlayerIndex = Math.floor(Math.random() * players.length);
+            updateCurrentPlayer();
+            
+            document.getElementById('result').innerHTML = `
+                <div>
+                    <h3>🎯 Vez de:</h3>
+                    <p>${players[currentPlayerIndex]}</p>
+                </div>
+            `;
+            
+            // Esconder botões de ação
+            document.getElementById('actionButtons').style.display = 'none';
+        }
+        
+        // Atualizar jogador atual
+        function updateCurrentPlayer() {
+            document.getElementById('currentPlayer').textContent = `Jogador atual: ${players[currentPlayerIndex]}`;
+        }
+        
+        // Obter nível atual para o jogador
+        function getCurrentLevel() {
+            if (gameMode === 'selecionavel') {
+                // Selecionar aleatoriamente um dos níveis escolhidos
+                if (selectedLevels.length === 0) return 1;
+                return selectedLevels[Math.floor(Math.random() * selectedLevels.length)];
+            } else {
+                // No modo surpreenda-me, o nível aumenta com a pontuação
+                const playerName = players[currentPlayerIndex];
+                const pontos = ranking[playerName] || 0;
+                
+                if (pontos >= 15) return 4;
+                if (pontos >= 10) return 3;
+                if (pontos >= 5) return 2;
+                return 1;
+            }
+        }
+        
+        // Escolher verdade
+        function escolherVerdade() {
+            const nivel = getCurrentLevel();
+            const pergunta = escolherAleatorio(verdades[nivel]);
+            
+            document.getElementById('result').innerHTML = `
+                <div>
+                    <h3>🤔 VERDADE Nível ${nivel} para ${players[currentPlayerIndex]}: <span class="level-badge level-${nivel}">${getNivelNome(nivel)}</span></h3>
+                    <p>${pergunta}</p>
+                </div>
+            `;
+            
+            currentAction = 'verdade';
+            
+            // Mostrar apenas botões de resposta para verdade
+            document.getElementById('btnRespondeu').style.display = 'block';
+            document.getElementById('btnNaoRespondeu').style.display = 'block';
+            document.getElementById('btnCumpriu').style.display = 'none';
+            document.getElementById('btnNaoCumpriu').style.display = 'none';
+            
+            document.getElementById('actionButtons').style.display = 'flex';
+        }
+        
+        // Escolher consequência
+        function escolherConsequencia() {
+            const nivel = getCurrentLevel();
+            const desafio = escolherAleatorio(consequencias[nivel]);
+            
+            document.getElementById('result').innerHTML = `
+                <div>
+                    <h3>🔥 CONSEQUÊNCIA Nível ${nivel} para ${players[currentPlayerIndex]}: <span class="level-badge level-${nivel}">${getNivelNome(nivel)}</span></h3>
+                    <p>${desafio}</p>
+                </div>
+            `;
+            
+            currentAction = 'consequencia';
+            
+            // Mostrar apenas botões de resposta para consequência
+            document.getElementById('btnRespondeu').style.display = 'none';
+            document.getElementById('btnNaoRespondeu').style.display = 'none';
+            document.getElementById('btnCumpriu').style.display = 'block';
+            document.getElementById('btnNaoCumpriu').style.display = 'block';
+            
+            document.getElementById('actionButtons').style.display = 'flex';
+        }
+        
+        // Obter nome do nível
+        function getNivelNome(nivel) {
+            switch(nivel) {
+                case 1: return "Leve";
+                case 2: return "Picante";
+                case 3: return "Proibido";
+                case 4: return "Pegando Fogo!";
+                default: return "";
+            }
+        }
+        
+        // Escolher aleatório
+        function escolherAleatorio(lista) {
+            return lista[Math.floor(Math.random() * lista.length)];
+        }
+        
+        // Jogador respondeu a verdade
+        function respondeu() {
+            const nivel = getCurrentLevel();
+            const pontos = nivel * 1; // Pontuação baseada no nível
+            atualizarRanking(players[currentPlayerIndex], pontos);
+            nextPlayer();
+        }
+        
+        // Jogador não respondeu a verdade
+        function naoRespondeu() {
+            const nivel = getCurrentLevel();
+            const pontos = nivel * -1; // Pontuação negativa baseada no nível
+            atualizarRanking(players[currentPlayerIndex], pontos);
+            nextPlayer();
+        }
+        
+        // Jogador cumpriu a consequência
+        function cumpriu() {
+            const nivel = getCurrentLevel();
+            const pontos = nivel * 2; // Pontuação baseada no nível
+            atualizarRanking(players[currentPlayerIndex], pontos);
+            nextPlayer();
+        }
+        
+        // Jogador não cumpriu a consequência
+        function naoCumpriu() {
+            const nivel = getCurrentLevel();
+            const pontos = nivel * -2; // Pontuação negativa baseada no nível
+            atualizarRanking(players[currentPlayerIndex], pontos);
+            nextPlayer();
+        }
+        
+        // Próximo jogador
+        function nextPlayer() {
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            updateCurrentPlayer();
+            
+            document.getElementById('result').innerHTML = `
+                <div>
+                    <h3>🎯 Vez de:</h3>
+                    <p>${players[currentPlayerIndex]}</p>
+                </div>
+            `;
+            
+            // Esconder botões de ação
+            document.getElementById('actionButtons').style.display = 'none';
+            
+            // Esconde o ranking se estiver visível
+            document.getElementById('ranking').style.display = 'none';
+            document.getElementById('result').style.display = 'flex';
+        }
+        
+        // Função para atualizar ranking
+        function atualizarRanking(nome, pontos) {
+            if (!ranking[nome]) ranking[nome] = 0;
+            ranking[nome] += pontos;
+            
+            // Garantir que a pontuação não fique negativa
+            if (ranking[nome] < 0) {
+                ranking[nome] = 0;
+            }
+            
+            // Atualizar nível do jogador no modo surpreenda-me
+            if (gameMode === 'surpreenda') {
+                if (ranking[nome] >= 15) playerLevels[nome] = 4;
+                else if (ranking[nome] >= 10) playerLevels[nome] = 3;
+                else if (ranking[nome] >= 5) playerLevels[nome] = 2;
+                else playerLevels[nome] = 1;
+            }
+        }
+        
+        // Mostrar ranking
+        function mostrarRanking() {
+            const rankingList = document.getElementById('rankingList');
+            rankingList.innerHTML = '';
+            
+            if (Object.keys(ranking).length === 0) {
+                rankingList.innerHTML = '<div class="ranking-item">O ranking ainda está vazio!</div>';
+            } else {
+                // Ordenar ranking por pontos
+                const sortedRanking = Object.entries(ranking)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                sortedRanking.forEach(([nome, pontos], index) => {
+                    const rankingItem = document.createElement('div');
+                    rankingItem.className = 'ranking-item';
+                    
+                    let nivelInfo = '';
+                    if (gameMode === 'surpreenda') {
+                        const nivel = playerLevels[nome] || 1;
+                        nivelInfo = ` <span class="level-badge level-${nivel}">${getNivelNome(nivel)}</span>`;
+                    }
+                    
+                    rankingItem.innerHTML = `
+                        <span>${index + 1}º ${nome}${nivelInfo}</span>
+                        <span>${pontos} pontos</span>
+                    `;
+                    rankingList.appendChild(rankingItem);
+                });
+            }
+            
+            // Alternar a exibição entre resultado e ranking
+            document.getElementById('gameSection').style.display = 'none';
+            document.getElementById('ranking').style.display = 'block';
+        }
+        
+        // Voltar ao jogo do ranking
+        function voltarAoJogo() {
+            document.getElementById('ranking').style.display = 'none';
+            document.getElementById('gameSection').style.display = 'block';
+        }
+        
+        // Inicialização
+        document.getElementById('numPlayers').focus();
+    </script>
+</body>
+</html>
