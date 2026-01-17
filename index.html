@@ -3,197 +3,190 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Verdade ou Consequencia - Fogo &amp; Seda</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-      crossorigin="anonymous"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Josefin+Sans:wght@300;500;700&display=swap"
-      rel="stylesheet"
-    />
+    <title>Fogo &amp; Seda — Verdade ou Consequência</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body class="theme-wine">
-    <div class="page">
-      <aside class="sidebar" id="sidebar">
+    <div class="app">
+      <header class="topbar">
         <div class="brand">
-          <div class="brand-mark">F</div>
+          <div class="brand-mark">F&amp;S</div>
           <div>
-            <div class="brand-title">Fogo &amp; Seda</div>
-            <div class="brand-subtitle">Verdade ou Consequencia</div>
+            <h1>Fogo &amp; Seda</h1>
+            <p>Verdade ou Consequência para adultos, com foco em consentimento e clima.</p>
           </div>
         </div>
+        <button class="btn ghost" id="openSettings" aria-label="Abrir configurações">Configurações</button>
+      </header>
 
-        <div class="sidebar-section">
-          <div class="sidebar-title">Tema</div>
-          <div class="d-grid gap-2" role="tablist" aria-label="Tema visual">
-            <button class="btn btn-outline-light theme-btn active" data-theme="wine" aria-pressed="true">Vinho</button>
-            <button class="btn btn-outline-light theme-btn" data-theme="gold" aria-pressed="false">Dourado</button>
-          </div>
-        </div>
-
-        <div class="sidebar-section">
-          <div class="sidebar-title">Nivel</div>
-          <div class="d-grid gap-2" role="tablist" aria-label="Nivel de intensidade">
-            <button class="btn btn-outline-light level-btn active" data-level="leve" aria-pressed="true">Leve</button>
-            <button class="btn btn-outline-light level-btn" data-level="quente" aria-pressed="false">Quente</button>
-            <button class="btn btn-outline-light level-btn" data-level="fogo" aria-pressed="false">Pegando fogo</button>
-          </div>
-        </div>
-
-        <div class="sidebar-section">
-          <div class="sidebar-title">Modo</div>
-          <div class="d-grid gap-2" role="tablist" aria-label="Modo de jogo">
-            <button class="btn btn-outline-light mode-btn active" data-mode="solo" aria-pressed="true">Solteiro</button>
-            <button class="btn btn-outline-light mode-btn" data-mode="couple" aria-pressed="false">Casal</button>
-            <button class="btn btn-outline-light mode-btn" data-mode="group" aria-pressed="false">Em grupo</button>
-          </div>
-          <div class="form-check form-switch mt-3">
-            <input class="form-check-input" type="checkbox" id="roleRotation" />
-            <label class="form-check-label text-light small" for="roleRotation">Rotacao de papeis</label>
-          </div>
-          <label class="form-label mt-3 text-light small" for="groupNames">Nomes (grupo)</label>
-          <input
-            class="form-control form-control-sm"
-            id="groupNames"
-            type="text"
-            placeholder="Ex.: Ana, Leo, Mari"
-            aria-label="Nomes separados por virgula"
-          />
-        </div>
-
-        <div class="sidebar-section">
-          <div class="sidebar-title">Aquecimento</div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="warmupMode" />
-            <label class="form-check-label text-light small" for="warmupMode">5 rodadas leves antes</label>
-          </div>
-          <div class="small text-light opacity-75" id="warmupStatus">Aquecimento desativado.</div>
-        </div>
-
-        <div class="sidebar-section">
-          <div class="sidebar-title">Filtros</div>
-          <div class="form-check">
-            <input class="form-check-input filter-check" type="checkbox" id="filterOral" />
-            <label class="form-check-label text-light small" for="filterOral">Sem oral</label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input filter-check" type="checkbox" id="filterDom" />
-            <label class="form-check-label text-light small" for="filterDom">Sem dominacao</label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input filter-check" type="checkbox" id="filterNudez" />
-            <label class="form-check-label text-light small" for="filterNudez">Sem nudez</label>
-          </div>
-          <div class="small text-light opacity-75">Filtro por palavras-chave.</div>
-        </div>
-
-        <div class="sidebar-section">
-          <div class="sidebar-title">Ritual</div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="blindDraw" />
-            <label class="form-check-label text-light small" for="blindDraw">Sorteio cego</label>
-          </div>
-          <label class="form-label text-light small mt-2" for="blindSeconds">Contagem (segundos)</label>
-          <select class="form-select form-select-sm" id="blindSeconds">
-            <option value="3">3</option>
-            <option value="5" selected>5</option>
-            <option value="7">7</option>
-          </select>
-          <div class="timer">
-            <div class="timer-display" id="ritualTimer">05:00</div>
-            <div class="d-grid gap-2">
-              <div class="btn-group" role="group" aria-label="Presets do timer">
-                <button class="btn btn-outline-light btn-sm timer-preset" data-minutes="5">5m</button>
-                <button class="btn btn-outline-light btn-sm timer-preset" data-minutes="10">10m</button>
-                <button class="btn btn-outline-light btn-sm timer-preset" data-minutes="15">15m</button>
-              </div>
-              <div class="d-flex gap-2">
-                <button class="btn btn-light btn-sm flex-fill" id="timerStart">Iniciar</button>
-                <button class="btn btn-outline-light btn-sm flex-fill" id="timerReset">Resetar</button>
-              </div>
+      <main class="layout">
+        <section class="main">
+          <div class="hero">
+            <div class="hero-title">Jogos que aproximam com respeito.</div>
+              <div class="hero-subtitle">
+              Escolha um nível, sorteie uma verdade ou desafio e use os filtros para manter tudo confortável.
             </div>
           </div>
-          <div class="form-check form-switch mt-3">
-            <input class="form-check-input" type="checkbox" id="soundToggle" checked />
-            <label class="form-check-label text-light small" for="soundToggle">Som</label>
-          </div>
-          <input class="form-range" id="soundVolume" type="range" min="0" max="100" value="40" />
-        </div>
 
-        <div class="sidebar-section">
-          <div class="sidebar-title">Compartilhar</div>
-          <div class="input-group input-group-sm">
-            <input class="form-control" id="shareLink" type="text" readonly />
-            <button class="btn btn-light" id="copyShare">Copiar</button>
-          </div>
-          <button class="btn btn-outline-light btn-sm mt-2 w-100" id="generateQr">Gerar QR</button>
-          <div class="qr-box mt-2">
-            <img id="qrImage" alt="QR code" />
-          </div>
-        </div>
-
-        <div class="sidebar-section">
-          <div class="sidebar-title">Preferencias</div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="autoSave" checked />
-            <label class="form-check-label text-light small" for="autoSave">Salvar automaticamente</label>
-          </div>
-        </div>
-
-        <div class="sidebar-section">
-          <div class="sidebar-title">Status</div>
-          <div class="stats" id="stats"></div>
-        </div>
-
-        <div class="sidebar-section consent">
-          So para maiores de 18 anos. Combine limites, palavra de seguranca e consentimento claro antes de comecar.
-        </div>
-      </aside>
-
-      <div class="content">
-        <header class="hero">
-          <div class="d-lg-none mb-3">
-            <button class="btn btn-outline-light btn-sm" id="sidebarToggle" type="button">Menu</button>
-          </div>
-          <h1>Verdade ou Consequencia</h1>
-          <p>
-            Jogo erotico para adultos, do clima leve ate o pegando fogo. Escolha o nivel,
-            sorteie uma verdade ou desafio e curtam sem pressa.
-          </p>
-        </header>
-
-        <div class="content-grid">
-          <section class="panel">
-            <div class="card shadow-sm border-0" id="card">
-              <span>Pronto? Escolha o nivel e sorteie.</span>
+          <section class="card-panel">
+            <div class="card-header">
+              <div class="chip" id="itemType">Verdade</div>
+            <div class="card-meta" id="itemMeta">Nível Leve · Modo Solteiro</div>
             </div>
-
-            <div class="d-grid d-md-flex gap-2">
-              <button class="btn btn-danger action-btn" data-action="truth">Sortear verdade</button>
-              <button class="btn btn-warning action-btn" data-action="dare">Sortear desafio</button>
-              <button class="btn btn-outline-dark action-btn" data-action="random">Sortear aleatorio</button>
-              <button class="btn btn-outline-dark action-btn" data-action="reset">Reembaralhar</button>
-              <button class="btn btn-outline-dark action-btn" id="exportPdf">Exportar PDF</button>
+            <div class="card-body" id="itemText">Toque em um botao para comecar.</div>
+            <div class="card-actions">
+              <button class="btn primary" id="drawTruth">Sortear Verdade</button>
+              <button class="btn accent" id="drawDare">Sortear Desafio</button>
+              <button class="btn" id="drawRandom">Sortear Aleatório</button>
+              <button class="btn ghost" id="swapItem">Trocar sem penalidade</button>
+              <button class="btn ghost" id="reshuffle">Reembaralhar</button>
+              <button class="btn ghost" id="copyItem">Copiar item</button>
+            </div>
+            <div class="feedback">
+              <button class="btn ghost" id="likeItem" aria-label="Curtir item">👍</button>
+              <button class="btn ghost" id="dislikeItem" aria-label="Não curtir item">👎</button>
+              <div class="feedback-hint">Ajuste o sorteio com feedback discreto.</div>
+            </div>
+            <div class="warning" id="poolWarning" hidden>
+              <div class="warning-text">Poucos itens com os filtros atuais.</div>
+              <div class="warning-actions">
+                <button class="btn ghost" id="relaxFilters">Relaxar filtros</button>
+                <button class="btn ghost" id="switchLevel">Mudar para Leve</button>
+              </div>
             </div>
           </section>
 
-          <section class="panel history-panel">
-            <div class="panel-title">Historico recente</div>
+          <section class="history-panel">
+            <div class="panel-header">
+              <h2>Histórico recente</h2>
+              <div class="panel-actions">
+                <button class="btn ghost" id="copyHistory">Copiar histórico</button>
+                <button class="btn ghost" id="clearHistory">Limpar</button>
+              </div>
+            </div>
             <div class="history-list" id="historyList"></div>
-            <div class="d-grid d-md-flex gap-2">
-              <button class="btn btn-outline-dark action-btn" id="copyHistory">Copiar historico</button>
-              <button class="btn btn-outline-dark action-btn" id="clearHistory">Limpar</button>
-            </div>
           </section>
-        </div>
-      </div>
+        </section>
+
+        <aside class="settings" id="settingsPanel" aria-label="Configurações do jogo">
+          <div class="settings-header">
+            <div>
+              <h2>Configurações</h2>
+              <p>Customize nível, modo, filtros e preferências.</p>
+            </div>
+            <button class="btn ghost" id="closeSettings" aria-label="Fechar configurações">Fechar</button>
+          </div>
+
+          <details class="settings-section" open>
+            <summary>Nível e modo</summary>
+            <div class="section-body">
+              <div class="field">
+                <label>Nível</label>
+                <div class="segmented">
+                  <button class="segment level-btn active" data-level="leve">Leve</button>
+                  <button class="segment level-btn" data-level="quente">Quente</button>
+                  <button class="segment level-btn" data-level="fogo">Fogo</button>
+                </div>
+              </div>
+              <div class="field">
+                <label>Modo</label>
+                <div class="segmented">
+                  <button class="segment mode-btn active" data-mode="solo">Solteiro</button>
+                  <button class="segment mode-btn" data-mode="casal">Casal</button>
+                  <button class="segment mode-btn" data-mode="grupo">Grupo</button>
+                </div>
+              </div>
+              <div class="field">
+                <label>Nomes (grupo)</label>
+                <input id="groupNames" type="text" placeholder="Ex.: Ana, Leo, Mari" />
+              </div>
+            </div>
+          </details>
+
+          <details class="settings-section" open>
+            <summary>Filtros e palavras</summary>
+            <div class="section-body">
+              <div class="field">
+              <label>Filtros rápidos</label>
+              <div class="toggle-list">
+                <label class="toggle"><input type="checkbox" id="noOral" />Sem oral</label>
+                <label class="toggle"><input type="checkbox" id="noDom" />Sem dominação</label>
+                <label class="toggle"><input type="checkbox" id="noNudez" />Sem nudez</label>
+              </div>
+            </div>
+              <div class="field">
+                <label>Busca por palavra</label>
+                <div class="input-row">
+                  <input id="keywordSearch" type="text" placeholder="Ex.: beijo, danca, segredos" />
+                  <button class="btn ghost" id="blockKeyword">Bloquear palavra</button>
+                </div>
+                <div class="help">A busca filtra e destaca a palavra no item atual.</div>
+              </div>
+              <div class="field">
+                <label>Palavras bloqueadas</label>
+                <div class="blocked-list" id="blockedList"></div>
+              </div>
+            </div>
+          </details>
+
+          <details class="settings-section">
+            <summary>Progressão e repetição</summary>
+            <div class="section-body">
+              <label class="toggle"><input type="checkbox" id="warmupMode" />Aquecimento (5 rodadas leves)</label>
+              <div class="field">
+                <label>Antirepeticao (N ultimas)</label>
+                <input id="noRepeat" type="range" min="6" max="20" step="1" value="12" />
+                <div class="range-value" id="noRepeatValue">12</div>
+              </div>
+            </div>
+          </details>
+
+          <details class="settings-section">
+            <summary>Preferências e tema</summary>
+            <div class="section-body">
+              <div class="field">
+                <label>Tema</label>
+                <div class="segmented">
+                  <button class="segment theme-btn active" data-theme="wine">Vinho</button>
+                  <button class="segment theme-btn" data-theme="gold">Dourado</button>
+                </div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="autoSave" checked />Salvar automaticamente</label>
+            </div>
+          </details>
+
+          <details class="settings-section">
+            <summary>Compartilhar e QR</summary>
+            <div class="section-body">
+              <div class="field">
+                <label>Link com configurações</label>
+                <div class="input-row">
+                  <input id="shareLink" type="text" readonly />
+                  <button class="btn ghost" id="copyShare">Copiar</button>
+                </div>
+              </div>
+              <div class="field">
+                <label>QR code</label>
+                <canvas id="qrCanvas" width="160" height="160" aria-label="QR code"></canvas>
+              </div>
+            </div>
+          </details>
+
+          <details class="settings-section">
+            <summary>Exportar</summary>
+            <div class="section-body">
+              <button class="btn" id="exportPdf">Exportar PDF</button>
+            </div>
+          </details>
+
+          <div class="consent">
+            <strong>18+ somente.</strong> Consentimento explícito, pausas e limites claros. Se algo não for confortável, pule.
+          </div>
+        </aside>
+      </main>
     </div>
 
-    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
-    <script src="app.js"></script>
+    <div class="backdrop" id="settingsBackdrop" hidden></div>
+    <script type="module" src="ui/app.js"></script>
   </body>
 </html>
