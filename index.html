@@ -4,36 +4,45 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Fogo &amp; Seda — Verdade ou Consequência</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@400;600;700&display=swap"
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body class="theme-wine">
+  <body class="theme-ember">
     <div class="app">
       <header class="topbar">
         <div class="brand">
           <div class="brand-mark">F&amp;S</div>
           <div>
             <h1>Fogo &amp; Seda</h1>
-            <p>Verdade ou Consequência para adultos, com foco em consentimento e clima.</p>
+            <p>Verdade ou Consequência 18+ com clima, carinho e consentimento.</p>
           </div>
         </div>
-        <button class="btn ghost" id="openSettings" aria-label="Abrir configurações">Configurações</button>
+        <button class="btn ghost" id="openSettings" aria-label="Abrir configurações">
+          Configurações
+        </button>
       </header>
 
       <main class="layout">
         <section class="main">
           <div class="hero">
-            <div class="hero-title">Jogos que aproximam com respeito.</div>
-              <div class="hero-subtitle">
-              Escolha um nível, sorteie uma verdade ou desafio e use os filtros para manter tudo confortável.
+            <div class="hero-title">Escolha o ritmo. Respeite limites. Curta o jogo.</div>
+            <div class="hero-subtitle">
+              Ajuste nível, modo e filtros. O sorteio respeita suas regras e troca por equivalente
+              quando necessário.
             </div>
           </div>
 
           <section class="card-panel">
             <div class="card-header">
               <div class="chip" id="itemType">Verdade</div>
-            <div class="card-meta" id="itemMeta">Nível Leve · Modo Solteiro</div>
+              <div class="card-meta" id="itemMeta">Nível Leve • Modo Casal</div>
             </div>
-            <div class="card-body" id="itemText">Toque em um botao para comecar.</div>
+            <div class="card-body" id="card">
+              <div class="card-text" id="itemText">Toque em um botao para comecar.</div>
+            </div>
             <div class="card-actions">
               <button class="btn primary" id="drawTruth">Sortear Verdade</button>
               <button class="btn accent" id="drawDare">Sortear Desafio</button>
@@ -45,7 +54,7 @@
             <div class="feedback">
               <button class="btn ghost" id="likeItem" aria-label="Curtir item">👍</button>
               <button class="btn ghost" id="dislikeItem" aria-label="Não curtir item">👎</button>
-              <div class="feedback-hint">Ajuste o sorteio com feedback discreto.</div>
+              <div class="feedback-hint">Feedback discreto ajusta o sorteio.</div>
             </div>
             <div class="warning" id="poolWarning" hidden>
               <div class="warning-text">Poucos itens com os filtros atuais.</div>
@@ -58,7 +67,7 @@
 
           <section class="history-panel">
             <div class="panel-header">
-              <h2>Histórico recente</h2>
+            <h2>Histórico recente</h2>
               <div class="panel-actions">
                 <button class="btn ghost" id="copyHistory">Copiar histórico</button>
                 <button class="btn ghost" id="clearHistory">Limpar</button>
@@ -72,9 +81,11 @@
           <div class="settings-header">
             <div>
               <h2>Configurações</h2>
-              <p>Customize nível, modo, filtros e preferências.</p>
+              <p>Personalize nível, modo, filtros e preferências.</p>
             </div>
-            <button class="btn ghost" id="closeSettings" aria-label="Fechar configurações">Fechar</button>
+            <button class="btn ghost" id="closeSettings" aria-label="Fechar configurações">
+              Fechar
+            </button>
           </div>
 
           <details class="settings-section" open>
@@ -91,14 +102,10 @@
               <div class="field">
                 <label>Modo</label>
                 <div class="segmented">
-                  <button class="segment mode-btn active" data-mode="solo">Solteiro</button>
-                  <button class="segment mode-btn" data-mode="casal">Casal</button>
+                  <button class="segment mode-btn" data-mode="solo">Solo</button>
+                  <button class="segment mode-btn active" data-mode="casal">Casal</button>
                   <button class="segment mode-btn" data-mode="grupo">Grupo</button>
                 </div>
-              </div>
-              <div class="field">
-                <label>Nomes (grupo)</label>
-                <input id="groupNames" type="text" placeholder="Ex.: Ana, Leo, Mari" />
               </div>
             </div>
           </details>
@@ -107,17 +114,17 @@
             <summary>Filtros e palavras</summary>
             <div class="section-body">
               <div class="field">
-              <label>Filtros rápidos</label>
-              <div class="toggle-list">
-                <label class="toggle"><input type="checkbox" id="noOral" />Sem oral</label>
-                <label class="toggle"><input type="checkbox" id="noDom" />Sem dominação</label>
-                <label class="toggle"><input type="checkbox" id="noNudez" />Sem nudez</label>
+                <label>Filtros rápidos</label>
+                <div class="toggle-list">
+                  <label class="toggle"><input type="checkbox" id="noOral" />Sem oral</label>
+                  <label class="toggle"><input type="checkbox" id="noDom" />Sem dominação</label>
+                  <label class="toggle"><input type="checkbox" id="noNudez" />Sem nudez</label>
+                </div>
               </div>
-            </div>
               <div class="field">
                 <label>Busca por palavra</label>
                 <div class="input-row">
-                  <input id="keywordSearch" type="text" placeholder="Ex.: beijo, danca, segredos" />
+                  <input id="keywordSearch" type="text" placeholder="Ex.: beijo, desejo, carinho" />
                   <button class="btn ghost" id="blockKeyword">Bloquear palavra</button>
                 </div>
                 <div class="help">A busca filtra e destaca a palavra no item atual.</div>
@@ -130,13 +137,14 @@
           </details>
 
           <details class="settings-section">
-            <summary>Progressão e repetição</summary>
+            <summary>Progresso e repetição</summary>
             <div class="section-body">
-              <label class="toggle"><input type="checkbox" id="warmupMode" />Aquecimento (5 rodadas leves)</label>
               <div class="field">
-                <label>Antirepeticao (N ultimas)</label>
-                <input id="noRepeat" type="range" min="6" max="20" step="1" value="12" />
-                <div class="range-value" id="noRepeatValue">12</div>
+                <label>Antirrepetição (N últimas)</label>
+                <div class="range-row">
+                  <input id="noRepeat" type="range" min="6" max="20" step="1" value="12" />
+                  <div class="range-value" id="noRepeatValue">12</div>
+                </div>
               </div>
             </div>
           </details>
@@ -147,11 +155,10 @@
               <div class="field">
                 <label>Tema</label>
                 <div class="segmented">
-                  <button class="segment theme-btn active" data-theme="wine">Vinho</button>
-                  <button class="segment theme-btn" data-theme="gold">Dourado</button>
+                  <button class="segment theme-btn active" data-theme="ember">Ambar</button>
+                  <button class="segment theme-btn" data-theme="sunrise">Amanhecer</button>
                 </div>
               </div>
-              <label class="toggle"><input type="checkbox" id="autoSave" checked />Salvar automaticamente</label>
             </div>
           </details>
 
@@ -167,7 +174,7 @@
               </div>
               <div class="field">
                 <label>QR code</label>
-                <canvas id="qrCanvas" width="160" height="160" aria-label="QR code"></canvas>
+                <canvas id="qrCanvas" width="180" height="180" aria-label="QR code"></canvas>
               </div>
             </div>
           </details>
@@ -180,7 +187,7 @@
           </details>
 
           <div class="consent">
-            <strong>18+ somente.</strong> Consentimento explícito, pausas e limites claros. Se algo não for confortável, pule.
+            <strong>18+ somente.</strong> Consentimento explícito, pausas e limites claros.
           </div>
         </aside>
       </main>
