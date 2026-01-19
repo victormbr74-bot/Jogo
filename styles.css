@@ -978,6 +978,9 @@ select:focus-visible {
   .btn {
     padding: 7px 12px;
   }
+  .modal-backdrop {
+    backdrop-filter: none;
+  }
 }
 
 @media (max-width: 600px) {

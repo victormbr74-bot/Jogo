@@ -54,6 +54,8 @@ state.currentPlayerIndex = clamp(
   0,
   Math.max(state.players.length - 1, 0)
 );
+state.pendingEvent = null;
+state.modalOpen = false;
 
 const elements = {
   currentPlayerName: document.getElementById("currentPlayerName"),
@@ -129,12 +131,17 @@ let actions = [];
 let normalCards = [];
 let event6Cards = [];
 let renderer = null;
-let currentAction = null;
 let actionQueue = [];
 let currentRoll = null;
 let filterWarning = false;
 let pendingCardChoices = null;
 let pendingCardResolve = null;
+
+const DEBUG = false;
+const debugLog = (...args) => {
+  if (!DEBUG) return;
+  console.log(...args);
+};
 
 const zoneLabel = (zone) => {
   if (zone === "quente") return "Zona Quente";
@@ -178,7 +185,7 @@ const applyTheme = (theme = {}) => {
   saveState(state);
   if (renderer) renderer.refreshTheme();
   renderLeaderboard();
-  updateActionCard(currentAction);
+  renderPendingEvent();
   window.dispatchEvent(new CustomEvent("themechange", { detail: { accent, accent2, accent3 } }));
 };
 
@@ -302,6 +309,16 @@ const updateActionCard = (action) => {
   elements.actionWarning.hidden = !filterWarning;
 };
 
+const setPendingEvent = (action) => {
+  state.pendingEvent = action ? { ...action } : null;
+  renderPendingEvent();
+};
+
+const renderPendingEvent = () => {
+  updateActionCard(state.pendingEvent);
+  debugLog("pendingEvent", state.pendingEvent);
+};
+
 const pushHistory = (entry) => {
   state.history.unshift(entry);
   state.history = state.history.slice(0, 30);
@@ -397,7 +414,7 @@ const updateTurnUI = () => {
   elements.turnStatus.textContent = player.blockedRounds
     ? "Bloqueado (1 rodada). Clique rolar para passar."
     : "";
-  elements.rollDice.disabled = Boolean(currentAction) || state.gameOver;
+  elements.rollDice.disabled = Boolean(state.pendingEvent) || state.gameOver;
   if (renderer) renderer.setActiveTile(player.position);
   renderLeaderboard();
 };
@@ -410,7 +427,7 @@ const rollDice = async () => {
     saveState(state);
     return;
   }
-  if (currentAction || state.gameOver) return;
+  if (state.pendingEvent || state.gameOver) return;
   elements.rollDice.disabled = true;
   elements.diceValue.textContent = "🎲";
   const cycles = randInt(8, 12);
@@ -431,22 +448,40 @@ const rollDice = async () => {
   updateTurnUI();
 };
 
-const movePlayer = async (player, steps, direction = 1) => {
-  const maxId = Math.max(...boardData.tiles.map((tile) => tile.id));
-  for (let i = 0; i < steps; i += 1) {
-    player.position = clamp(player.position + direction, 1, maxId);
-    renderer.updateTokens(state.players);
-    renderer.setActiveTile(player.position);
-    await wait(320);
-  }
-};
+// Use rAF stepping to avoid full rerenders and reduce layout thrash while moving.
+const movePlayer = (player, steps, direction = 1) =>
+  new Promise((resolve) => {
+    const maxId = Math.max(...boardData.tiles.map((tile) => tile.id));
+    const stepDuration = 260;
+    let stepIndex = 0;
+    let lastStepTime = null;
+
+    const tick = (time) => {
+      if (!lastStepTime) lastStepTime = time;
+      if (time - lastStepTime >= stepDuration) {
+        player.position = clamp(player.position + direction, 1, maxId);
+        renderer.updateTokens(state.players);
+        renderer.setActiveTile(player.position);
+        stepIndex += 1;
+        lastStepTime = time;
+      }
+      if (stepIndex < steps) {
+        requestAnimationFrame(tick);
+        return;
+      }
+      resolve();
+    };
+
+    requestAnimationFrame(tick);
+  });
 
 const resolveTile = async (tile, roll) => {
   if (!tile) return;
+  debugLog("tile", tile, "roll", roll);
   if (tile.type === "finish") {
     state.gameOver = true;
     actionQueue = [];
-    currentAction = {
+    setPendingEvent({
       id: "finish",
       source: "finish",
       type: "fim",
@@ -454,8 +489,7 @@ const resolveTile = async (tile, roll) => {
       icon: "🏁",
       mandatory: false,
       readOnly: true
-    };
-    updateActionCard(currentAction);
+    });
     return;
   }
   if (tile.type === "comprar_carta") {
@@ -468,7 +502,12 @@ const resolveTile = async (tile, roll) => {
     const eventCard = pickFromPool(event6Cards, tile.zone);
     if (eventCard.item) {
       animateDeckDraw(elements.event6Deck);
-      queueAction({ ...eventCard.item, source: "event6", mandatory: true, warning: eventCard.warning });
+      queueAction({
+        ...eventCard.item,
+        source: "event6",
+        mandatory: true,
+        warning: eventCard.warning
+      });
     } else {
       filterWarning = true;
     }
@@ -478,15 +517,15 @@ const resolveTile = async (tile, roll) => {
 
 const queueAction = (action) => {
   if (!action) return;
-  actionQueue.push(action);
+  actionQueue.push({ ...action });
 };
 
 const processNextAction = () => {
-  if (currentAction) return;
+  if (state.pendingEvent) return;
   if (!actionQueue.length) return;
-  currentAction = actionQueue.shift();
-  filterWarning = Boolean(currentAction.warning);
-  updateActionCard(currentAction);
+  const nextAction = actionQueue.shift();
+  filterWarning = Boolean(nextAction.warning);
+  setPendingEvent(nextAction);
 };
 
 const openCardsChoice = (tile) =>
@@ -504,6 +543,7 @@ const openCardsChoice = (tile) =>
     animateDeckDraw(elements.normalDeck);
     pendingCardChoices = choices;
     pendingCardResolve = (selected) => {
+      state.modalOpen = false;
       closeModal(elements.cardsModal, elements.modalBackdrop);
       if (selected) {
         queueAction({ ...selected, source: "normal", mandatory: false, warning: filterWarning });
@@ -522,6 +562,7 @@ const openCardsChoice = (tile) =>
         `
       )
       .join("");
+    state.modalOpen = true;
     openModal(elements.cardsModal, elements.modalBackdrop);
     elements.cardsGrid.querySelectorAll(".card-choice").forEach((cardEl) => {
       cardEl.addEventListener("click", () => {
@@ -539,16 +580,16 @@ const applyPenalty = async (player) => {
 };
 
 const resolveAction = async (refused) => {
-  if (!currentAction) return;
+  if (!state.pendingEvent) return;
   const player = state.players[state.currentPlayerIndex];
   const tile = getTile(player.position);
   let penaltyNote = "";
   if (refused) {
     penaltyNote = await applyPenalty(player);
     player.score = Math.max(0, player.score - 1);
-  } else if (currentAction.source === "special" && currentAction.special) {
-    if (currentAction.special.action === "advance") {
-      await movePlayer(player, currentAction.special.steps || 1);
+  } else if (state.pendingEvent.source === "special" && state.pendingEvent.special) {
+    if (state.pendingEvent.special.action === "advance") {
+      await movePlayer(player, state.pendingEvent.special.steps || 1);
       const landed = getTile(player.position);
       if (landed.type === "finish") {
         state.gameOver = true;
@@ -568,8 +609,8 @@ const resolveAction = async (refused) => {
         queueAction(buildActionFromTile(landed));
       }
     }
-    if (currentAction.special.action === "back") {
-      await movePlayer(player, currentAction.special.steps || 1, -1);
+    if (state.pendingEvent.special.action === "back") {
+      await movePlayer(player, state.pendingEvent.special.steps || 1, -1);
       const landed = getTile(player.position);
       if (landed.type === "finish") {
         state.gameOver = true;
@@ -591,7 +632,7 @@ const resolveAction = async (refused) => {
     }
   }
   if (!refused) {
-    player.score += currentAction?.mandatory ? 3 : 2;
+    player.score += state.pendingEvent?.mandatory ? 3 : 2;
   }
   renderLeaderboard();
   pushHistory({
@@ -600,13 +641,14 @@ const resolveAction = async (refused) => {
     roll: currentRoll,
     tileId: tile?.id,
     tileType: tile?.type,
-    text: refused && penaltyNote ? `${currentAction.text} (${penaltyNote})` : currentAction.text,
+    text: refused && penaltyNote
+      ? `${state.pendingEvent.text} (${penaltyNote})`
+      : state.pendingEvent.text,
     refused
   });
-  currentAction = null;
-  updateActionCard(null);
+  setPendingEvent(null);
   processNextAction();
-  if (!currentAction) advanceTurn();
+  if (!state.pendingEvent) advanceTurn();
 };
 
 const advanceTurn = () => {
@@ -962,7 +1004,7 @@ const setupListeners = () => {
     elements.noDom.checked = false;
     elements.noOral.checked = false;
     filterWarning = false;
-    updateActionCard(currentAction);
+    renderPendingEvent();
     saveState(state);
   });
 
@@ -992,6 +1034,7 @@ const setupListeners = () => {
 
   const closeCardsModal = () => {
     if (!pendingCardResolve) {
+      state.modalOpen = false;
       closeModal(elements.cardsModal, elements.modalBackdrop);
       return;
     }
@@ -1040,10 +1083,7 @@ const init = async () => {
   boardData = await fetch("data/board.json").then((res) => res.json());
   await reloadCollections();
   renderer = new BoardRenderer(elements.boardSvg, {
-    onTileClick: (tile) => {
-      currentAction = { text: `Casa ${tile.id} (${tile.type})`, icon: "🔎" };
-      updateActionCard(currentAction);
-    }
+    onTileClick: null
   });
   renderer.load(boardData);
   renderer.createTokens(state.players.map((player, index) => ({ ...player, label: String(index + 1) })));
