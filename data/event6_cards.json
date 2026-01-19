@@ -1,0 +1,352 @@
+[
+  {
+    "id": "e6-1",
+    "type": "intensa",
+    "zone": "leve",
+    "text": "Beije alguem por 10 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-2",
+    "type": "escolha",
+    "zone": "leve",
+    "text": "Escolha alguem para te dar um elogio direto.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-3",
+    "type": "dupla",
+    "zone": "leve",
+    "text": "Acao em dupla por 15 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-4",
+    "type": "controle",
+    "zone": "leve",
+    "text": "Alguem decide sua proxima acao leve.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-5",
+    "type": "intensa",
+    "zone": "leve",
+    "text": "Retire uma camada de roupa agora.",
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-6",
+    "type": "escolha",
+    "zone": "leve",
+    "text": "Escolha alguem para retirar uma camada de roupa.",
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-7",
+    "type": "controle",
+    "zone": "leve",
+    "text": "Fique com as maos acima da cintura ate seu proximo turno.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-8",
+    "type": "dupla",
+    "zone": "leve",
+    "text": "Troque um toque curto com alguem por 10 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-9",
+    "type": "intensa",
+    "zone": "leve",
+    "text": "Fique sem falar por uma rodada.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-10",
+    "type": "escolha",
+    "zone": "leve",
+    "text": "Escolha alguem para te dar um toque leve.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-11",
+    "type": "controle",
+    "zone": "leve",
+    "text": "Alguem escolhe uma palavra proibida ate seu proximo turno.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-12",
+    "type": "dupla",
+    "zone": "leve",
+    "text": "Fique colado a alguem por 20 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-13",
+    "type": "intensa",
+    "zone": "leve",
+    "text": "Mostre uma marca ou acessorio secreto agora.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-14",
+    "type": "escolha",
+    "zone": "leve",
+    "text": "Escolha alguem para fazer uma pergunta direta.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-15",
+    "type": "intensa",
+    "zone": "leve",
+    "text": "Sente mais perto de alguem agora.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-16",
+    "type": "intensa",
+    "zone": "quente",
+    "text": "Retire outra camada de roupa agora.",
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-17",
+    "type": "dupla",
+    "zone": "quente",
+    "text": "Acao em dupla por 25 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-18",
+    "type": "controle",
+    "zone": "quente",
+    "text": "Alguem decide sua proxima acao quente.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-19",
+    "type": "escolha",
+    "zone": "quente",
+    "text": "Escolha quem segura seu rosto por 10 segundos.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-20",
+    "type": "intensa",
+    "zone": "quente",
+    "text": "Faca uma interacao intima por 15 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-21",
+    "type": "dupla",
+    "zone": "quente",
+    "text": "Toque combinado com alguem por 20 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-22",
+    "type": "controle",
+    "zone": "quente",
+    "text": "Fique com os pulsos juntos ate seu proximo turno.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-23",
+    "type": "escolha",
+    "zone": "quente",
+    "text": "Escolha alguem para te dar um beijo forte.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-24",
+    "type": "intensa",
+    "zone": "quente",
+    "text": "Fique sem uma peca de roupa ate seu proximo turno.",
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-25",
+    "type": "dupla",
+    "zone": "quente",
+    "text": "Aproxime a boca do ouvido de alguem e diga uma ordem.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-26",
+    "type": "controle",
+    "zone": "quente",
+    "text": "Alguem escolhe com quem voce fica ate a proxima rodada.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-27",
+    "type": "intensa",
+    "zone": "quente",
+    "text": "Abrace alguem por 20 segundos sem soltar.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-28",
+    "type": "escolha",
+    "zone": "quente",
+    "text": "Escolha alguem para tocar voce por 15 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-29",
+    "type": "intensa",
+    "zone": "quente",
+    "text": "Faca uma provocacao curta e direta.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-30",
+    "type": "dupla",
+    "zone": "quente",
+    "text": "Beijo prolongado por 15 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-31",
+    "type": "intensa",
+    "zone": "quente",
+    "text": "Fique de joelhos por 10 segundos.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-32",
+    "type": "controle",
+    "zone": "quente",
+    "text": "Alguem escolhe seu proximo parceiro por uma rodada.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-33",
+    "type": "escolha",
+    "zone": "quente",
+    "text": "Escolha alguem para tirar um acessorio seu.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-34",
+    "type": "intensa",
+    "zone": "quente",
+    "text": "Sem falar ate seu proximo turno.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-35",
+    "type": "dupla",
+    "zone": "quente",
+    "text": "Encoste corpo com corpo por 20 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-36",
+    "type": "intensa",
+    "zone": "final",
+    "text": "Retire duas camadas de roupa agora.",
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-37",
+    "type": "controle",
+    "zone": "final",
+    "text": "Alguem decide sua acao final agora.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-38",
+    "type": "dupla",
+    "zone": "final",
+    "text": "Acao em dupla por 30 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-39",
+    "type": "escolha",
+    "zone": "final",
+    "text": "Escolha alguem para conduzir voce por 20 segundos.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-40",
+    "type": "intensa",
+    "zone": "final",
+    "text": "Faca uma interacao intima por 25 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-41",
+    "type": "dupla",
+    "zone": "final",
+    "text": "Troque um beijo longo agora.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-42",
+    "type": "controle",
+    "zone": "final",
+    "text": "Fique vendado ate seu proximo turno.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-43",
+    "type": "escolha",
+    "zone": "final",
+    "text": "Escolha alguem para tirar uma peca de roupa sua.",
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-44",
+    "type": "intensa",
+    "zone": "final",
+    "text": "Fique sem tocar em ninguem ate seu proximo turno.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-45",
+    "type": "dupla",
+    "zone": "final",
+    "text": "Acao em dupla escolhida pelo grupo.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-46",
+    "type": "controle",
+    "zone": "final",
+    "text": "Fique com as maos presas atras do corpo por 20 segundos.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-47",
+    "type": "escolha",
+    "zone": "final",
+    "text": "Escolha alguem para decidir sua proxima fala.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "e6-48",
+    "type": "intensa",
+    "zone": "final",
+    "text": "Sem roupas externas ate o fim do jogo.",
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-49",
+    "type": "dupla",
+    "zone": "final",
+    "text": "Escolha alguem para uma acao conjunta intensa.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "e6-50",
+    "type": "controle",
+    "zone": "final",
+    "text": "Alguem decide quem pode falar ate o proximo turno.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  }
+]

@@ -3,11 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Fogo &amp; Seda — Verdade ou Consequência</title>
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Manrope:wght@400;600;700&display=swap"
-    />
+    <title>Fogo &amp; Seda - Tabuleiro</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body class="theme-ember">
@@ -17,183 +13,212 @@
           <div class="brand-mark">F&amp;S</div>
           <div>
             <h1>Fogo &amp; Seda</h1>
-            <p>Verdade ou Consequência 18+ com clima, carinho e consentimento.</p>
+            <p>Tabuleiro 18+ com dado, cartas e consequencia.</p>
           </div>
         </div>
-        <button class="btn ghost" id="openSettings" aria-label="Abrir configurações">
-          Configurações
+        <div class="turn">
+          <div class="turn-label">Jogador da vez</div>
+          <div class="turn-name" id="currentPlayerName">Jogador 1</div>
+          <div class="zone-badge" id="zoneBadge">Zona Leve</div>
+          <div class="turn-status" id="turnStatus"></div>
+        </div>
+        <div class="dice-panel">
+          <button class="btn dice-btn" id="rollDice" aria-label="Rolar dado">
+            🎲 Rolar dado
+          </button>
+          <div class="dice-value" id="diceValue">-</div>
+        </div>
+        <button class="btn ghost" id="openSettings" aria-label="Abrir preferencias">
+          Preferencias
         </button>
       </header>
 
       <main class="layout">
-        <section class="main">
-          <div class="hero">
-            <div class="hero-title">Escolha o ritmo. Respeite limites. Curta o jogo.</div>
-            <div class="hero-subtitle">
-              Ajuste nível, modo e filtros. O sorteio respeita suas regras e troca por equivalente
-              quando necessário.
+        <section class="board-section">
+          <div class="board-toolbar">
+            <button class="btn ghost" id="centerPlayer">Centralizar na minha peca</button>
+            <div class="board-legend">
+              <span class="legend-item leve">Leve</span>
+              <span class="legend-item quente">Quente</span>
+              <span class="legend-item final">Final</span>
             </div>
           </div>
+          <div class="board-wrap" id="boardWrap">
+            <svg id="boardSvg" aria-label="Tabuleiro Fogo e Seda"></svg>
+          </div>
+        </section>
 
-          <section class="card-panel">
-            <div class="card-header">
-              <div class="chip" id="itemType">Verdade</div>
-              <div class="card-meta" id="itemMeta">Nível Leve • Modo Casal</div>
-            </div>
-            <div class="card-body" id="card">
-              <div class="card-text" id="itemText">Toque em um botao para comecar.</div>
-            </div>
-            <div class="card-actions">
-              <button class="btn primary" id="drawTruth">Sortear Verdade</button>
-              <button class="btn accent" id="drawDare">Sortear Desafio</button>
-              <button class="btn" id="drawRandom">Sortear Aleatório</button>
-              <button class="btn ghost" id="swapItem">Trocar sem penalidade</button>
-              <button class="btn ghost" id="reshuffle">Reembaralhar</button>
-              <button class="btn ghost" id="copyItem">Copiar item</button>
-            </div>
-            <div class="feedback">
-              <button class="btn ghost" id="likeItem" aria-label="Curtir item">👍</button>
-              <button class="btn ghost" id="dislikeItem" aria-label="Não curtir item">👎</button>
-              <div class="feedback-hint">Feedback discreto ajusta o sorteio.</div>
-            </div>
-            <div class="warning" id="poolWarning" hidden>
-              <div class="warning-text">Poucos itens com os filtros atuais.</div>
-              <div class="warning-actions">
-                <button class="btn ghost" id="relaxFilters">Relaxar filtros</button>
-                <button class="btn ghost" id="switchLevel">Mudar para Leve</button>
+        <aside class="side-panel">
+          <section class="action-card" id="actionCard">
+            <div class="action-header">
+              <div class="action-icon" id="actionIcon">✨</div>
+              <div>
+                <div class="action-type" id="actionType">Pronto para jogar</div>
+                <div class="action-meta" id="actionMeta">Rolar o dado para comecar</div>
               </div>
+            </div>
+            <div class="action-body">
+              <p class="action-text" id="actionText">
+                As instrucoes aparecem aqui. Linguagem direta, curta e objetiva.
+              </p>
+              <div class="action-tags">
+                <span class="tag" id="actionMandatory" hidden>Obrigatoria</span>
+                <span class="tag warning" id="actionPenalty"
+                  >Penalidade: -3 casas + 1 rodada + sem interacao</span
+                >
+              </div>
+            </div>
+            <div class="action-actions">
+              <button class="btn primary" id="actionExecute">Executar</button>
+              <button class="btn ghost" id="actionRefuse">Recusar</button>
+            </div>
+            <div class="action-warning" id="actionWarning" hidden>
+              Sem opcoes com filtros atuais. Reduza filtros.
+              <button class="btn ghost" id="relaxFilters">Reduzir filtros</button>
             </div>
           </section>
 
           <section class="history-panel">
             <div class="panel-header">
-            <h2>Histórico recente</h2>
-              <div class="panel-actions">
-                <button class="btn ghost" id="copyHistory">Copiar histórico</button>
-                <button class="btn ghost" id="clearHistory">Limpar</button>
-              </div>
+              <h2>Historico recente</h2>
+              <button class="btn ghost" id="exportPdf">Exportar PDF</button>
             </div>
             <div class="history-list" id="historyList"></div>
           </section>
-        </section>
-
-        <aside class="settings" id="settingsPanel" aria-label="Configurações do jogo">
-          <div class="settings-header">
-            <div>
-              <h2>Configurações</h2>
-              <p>Personalize nível, modo, filtros e preferências.</p>
-            </div>
-            <button class="btn ghost" id="closeSettings" aria-label="Fechar configurações">
-              Fechar
-            </button>
-          </div>
-
-          <details class="settings-section" open>
-            <summary>Nível e modo</summary>
-            <div class="section-body">
-              <div class="field">
-                <label>Nível</label>
-                <div class="segmented">
-                  <button class="segment level-btn active" data-level="leve">Leve</button>
-                  <button class="segment level-btn" data-level="quente">Quente</button>
-                  <button class="segment level-btn" data-level="fogo">Fogo</button>
-                </div>
-              </div>
-              <div class="field">
-                <label>Modo</label>
-                <div class="segmented">
-                  <button class="segment mode-btn" data-mode="solo">Solo</button>
-                  <button class="segment mode-btn active" data-mode="casal">Casal</button>
-                  <button class="segment mode-btn" data-mode="grupo">Grupo</button>
-                </div>
-              </div>
-            </div>
-          </details>
-
-          <details class="settings-section" open>
-            <summary>Filtros e palavras</summary>
-            <div class="section-body">
-              <div class="field">
-                <label>Filtros rápidos</label>
-                <div class="toggle-list">
-                  <label class="toggle"><input type="checkbox" id="noOral" />Sem oral</label>
-                  <label class="toggle"><input type="checkbox" id="noDom" />Sem dominação</label>
-                  <label class="toggle"><input type="checkbox" id="noNudez" />Sem nudez</label>
-                </div>
-              </div>
-              <div class="field">
-                <label>Busca por palavra</label>
-                <div class="input-row">
-                  <input id="keywordSearch" type="text" placeholder="Ex.: beijo, desejo, carinho" />
-                  <button class="btn ghost" id="blockKeyword">Bloquear palavra</button>
-                </div>
-                <div class="help">A busca filtra e destaca a palavra no item atual.</div>
-              </div>
-              <div class="field">
-                <label>Palavras bloqueadas</label>
-                <div class="blocked-list" id="blockedList"></div>
-              </div>
-            </div>
-          </details>
-
-          <details class="settings-section">
-            <summary>Progresso e repetição</summary>
-            <div class="section-body">
-              <div class="field">
-                <label>Antirrepetição (N últimas)</label>
-                <div class="range-row">
-                  <input id="noRepeat" type="range" min="6" max="20" step="1" value="12" />
-                  <div class="range-value" id="noRepeatValue">12</div>
-                </div>
-              </div>
-            </div>
-          </details>
-
-          <details class="settings-section">
-            <summary>Preferências e tema</summary>
-            <div class="section-body">
-              <div class="field">
-                <label>Tema</label>
-                <div class="segmented">
-                  <button class="segment theme-btn active" data-theme="ember">Ambar</button>
-                  <button class="segment theme-btn" data-theme="sunrise">Amanhecer</button>
-                </div>
-              </div>
-            </div>
-          </details>
-
-          <details class="settings-section">
-            <summary>Compartilhar e QR</summary>
-            <div class="section-body">
-              <div class="field">
-                <label>Link com configurações</label>
-                <div class="input-row">
-                  <input id="shareLink" type="text" readonly />
-                  <button class="btn ghost" id="copyShare">Copiar</button>
-                </div>
-              </div>
-              <div class="field">
-                <label>QR code</label>
-                <canvas id="qrCanvas" width="180" height="180" aria-label="QR code"></canvas>
-              </div>
-            </div>
-          </details>
-
-          <details class="settings-section">
-            <summary>Exportar</summary>
-            <div class="section-body">
-              <button class="btn" id="exportPdf">Exportar PDF</button>
-            </div>
-          </details>
-
-          <div class="consent">
-            <strong>18+ somente.</strong> Consentimento explícito, pausas e limites claros.
-          </div>
         </aside>
       </main>
     </div>
 
-    <div class="backdrop" id="settingsBackdrop" hidden></div>
+    <div class="modal-backdrop" id="modalBackdrop" hidden></div>
+
+    <div class="modal" id="settingsModal" aria-hidden="true" role="dialog" aria-label="Preferencias">
+      <div class="modal-header">
+        <h2>Preferencias</h2>
+        <button class="btn ghost" data-close-modal>Fechar</button>
+      </div>
+      <div class="modal-body">
+        <section class="modal-section">
+          <h3>Jogadores</h3>
+          <div class="players-list" id="playersList"></div>
+          <div class="players-actions">
+            <button class="btn ghost" id="addPlayer">Adicionar jogador</button>
+            <button class="btn ghost" id="removePlayer">Remover jogador</button>
+          </div>
+        </section>
+        <section class="modal-section">
+          <h3>Filtros</h3>
+          <div class="toggle-list">
+            <label class="toggle"><input type="checkbox" id="noNudez" />Sem nudez</label>
+            <label class="toggle"><input type="checkbox" id="noDom" />Sem dominacao</label>
+            <label class="toggle"><input type="checkbox" id="noOral" />Sem oral</label>
+          </div>
+        </section>
+        <section class="modal-section">
+          <h3>Meu Baralho</h3>
+          <button class="btn" id="openDeckEditor">Abrir editor</button>
+        </section>
+      </div>
+    </div>
+
+    <div class="modal" id="deckModal" aria-hidden="true" role="dialog" aria-label="Editor do baralho">
+      <div class="modal-header">
+        <h2>Meu Baralho</h2>
+        <button class="btn ghost" data-close-modal>Fechar</button>
+      </div>
+      <div class="modal-body">
+        <div class="tab-bar">
+          <button class="tab active" data-tab="actions">Acoes</button>
+          <button class="tab" data-tab="normal">Cartas normais</button>
+          <button class="tab" data-tab="event6">Cartas evento 6</button>
+        </div>
+        <div class="tab-panel active" data-panel="actions">
+          <div class="editor-actions">
+            <button class="btn ghost" id="addAction">Adicionar acao</button>
+          </div>
+          <div class="editor-list" id="actionsList"></div>
+        </div>
+        <div class="tab-panel" data-panel="normal">
+          <div class="editor-actions">
+            <button class="btn ghost" id="addNormalCard">Adicionar carta normal</button>
+          </div>
+          <div class="editor-list" id="normalCardsList"></div>
+        </div>
+        <div class="tab-panel" data-panel="event6">
+          <div class="editor-actions">
+            <button class="btn ghost" id="addEvent6Card">Adicionar carta evento 6</button>
+          </div>
+          <div class="editor-list" id="event6CardsList"></div>
+        </div>
+        <div class="import-export">
+          <button class="btn ghost" id="exportDeck">Exportar JSON</button>
+          <label class="btn ghost">
+            Importar JSON
+            <input id="importDeck" type="file" accept="application/json" hidden />
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="cardsModal" aria-hidden="true" role="dialog" aria-label="Escolher carta">
+      <div class="modal-header">
+        <h2>Escolha 1 carta</h2>
+        <button class="btn ghost" data-close-modal>Fechar</button>
+      </div>
+      <div class="modal-body">
+        <div class="cards-grid" id="cardsGrid"></div>
+      </div>
+    </div>
+
+    <div class="modal" id="editModal" aria-hidden="true" role="dialog" aria-label="Editar item">
+      <div class="modal-header">
+        <h2 id="editTitle">Editar</h2>
+        <button class="btn ghost" data-close-modal>Fechar</button>
+      </div>
+      <div class="modal-body">
+        <form id="editForm" class="edit-form">
+          <input type="hidden" id="editId" />
+          <input type="hidden" id="editKind" />
+          <label>
+            Texto
+            <textarea id="editText" required></textarea>
+          </label>
+          <label class="form-row">
+            Zona
+            <select id="editZone">
+              <option value="leve">Leve</option>
+              <option value="quente">Quente</option>
+              <option value="final">Final</option>
+            </select>
+          </label>
+          <label class="form-row" id="editCategoryRow">
+            Categoria
+            <select id="editCategory">
+              <option value="verdade">Verdade</option>
+              <option value="desafio">Desafio</option>
+              <option value="acao_visual">Acao visual</option>
+            </select>
+          </label>
+          <label class="form-row" id="editIconRow">
+            Icone (emoji)
+            <input id="editIcon" type="text" maxlength="2" />
+          </label>
+          <label class="form-row" id="editMandatoryRow">
+            Obrigatoria
+            <input id="editMandatory" type="checkbox" />
+          </label>
+          <fieldset>
+            <legend>Filtros</legend>
+            <label class="toggle"><input type="checkbox" id="banNudez" />Nudez</label>
+            <label class="toggle"><input type="checkbox" id="banDom" />Dominacao</label>
+            <label class="toggle"><input type="checkbox" id="banOral" />Oral</label>
+          </fieldset>
+          <div class="form-actions">
+            <button class="btn primary" type="submit">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script type="module" src="ui/app.js"></script>
   </body>
 </html>

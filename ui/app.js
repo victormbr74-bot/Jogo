@@ -1,212 +1,245 @@
-import { loadState, saveState } from "../utils/storage.js";
-import { validateItems, filterItems, getFallbackItems } from "../utils/validation.js";
-import { highlightText, includesNormalized } from "../utils/text.js";
-import { pickWeighted, pickEquivalent, updateScore } from "../utils/random.js";
+import { loadState, saveState, loadCollection, saveCollection } from "../utils/storage.js";
+import { clamp, pickMany, pickOne, randInt } from "../utils/random.js";
+import { validateActions, validateCards, withBans } from "../utils/validation.js";
+import { BoardRenderer } from "./boardRenderer.js";
+import { bindModal, closeModal, openModal } from "./modals.js";
+
+const USER_ACTIONS_KEY = "user_actions_v1";
+const USER_NORMAL_KEY = "user_cards_normal_v1";
+const USER_EVENT6_KEY = "user_cards_event6_v1";
+
+const PLAYER_COLORS = ["#F05B5B", "#F7B34A", "#75C4AD", "#7C6AF2", "#F2E88B", "#72B7FF"];
 
 const DEFAULTS = {
-  level: "leve",
-  mode: "casal",
-  theme: "ember",
-  filters: { noOral: false, noDom: false, noNudez: false },
-  noRepeat: 12,
-  keyword: "",
-  blockedWords: [],
+  players: [
+    {
+      id: "p1",
+      name: "Jogador 1",
+      color: PLAYER_COLORS[0],
+      position: 1,
+      blockedRounds: 0,
+      interactionBlocked: false
+    },
+    {
+      id: "p2",
+      name: "Jogador 2",
+      color: PLAYER_COLORS[1],
+      position: 1,
+      blockedRounds: 0,
+      interactionBlocked: false
+    }
+  ],
+  currentPlayerIndex: 0,
+  filters: { noNudez: false, noDom: false, noOral: false },
   history: [],
-  recentIds: [],
-  feedbackScores: {},
-  lastItemId: null
+  gameOver: false
 };
 
 const state = loadState(DEFAULTS);
 
+state.players = state.players.map((player, index) => ({
+  id: player.id || `p${index + 1}`,
+  name: player.name || `Jogador ${index + 1}`,
+  color: player.color || PLAYER_COLORS[index % PLAYER_COLORS.length],
+  position: player.position || 1,
+  blockedRounds: player.blockedRounds || 0,
+  interactionBlocked: Boolean(player.interactionBlocked)
+}));
+state.currentPlayerIndex = clamp(
+  state.currentPlayerIndex || 0,
+  0,
+  Math.max(state.players.length - 1, 0)
+);
+
 const elements = {
-  itemType: document.getElementById("itemType"),
-  itemMeta: document.getElementById("itemMeta"),
-  itemText: document.getElementById("itemText"),
-  card: document.getElementById("card"),
-  drawTruth: document.getElementById("drawTruth"),
-  drawDare: document.getElementById("drawDare"),
-  drawRandom: document.getElementById("drawRandom"),
-  swapItem: document.getElementById("swapItem"),
-  reshuffle: document.getElementById("reshuffle"),
-  likeItem: document.getElementById("likeItem"),
-  dislikeItem: document.getElementById("dislikeItem"),
-  copyItem: document.getElementById("copyItem"),
-  historyList: document.getElementById("historyList"),
-  copyHistory: document.getElementById("copyHistory"),
-  clearHistory: document.getElementById("clearHistory"),
-  levelButtons: document.querySelectorAll(".level-btn"),
-  modeButtons: document.querySelectorAll(".mode-btn"),
-  filterOral: document.getElementById("noOral"),
-  filterDom: document.getElementById("noDom"),
-  filterNudez: document.getElementById("noNudez"),
-  keywordSearch: document.getElementById("keywordSearch"),
-  blockKeyword: document.getElementById("blockKeyword"),
-  blockedList: document.getElementById("blockedList"),
-  noRepeat: document.getElementById("noRepeat"),
-  noRepeatValue: document.getElementById("noRepeatValue"),
-  themeButtons: document.querySelectorAll(".theme-btn"),
-  shareLink: document.getElementById("shareLink"),
-  copyShare: document.getElementById("copyShare"),
-  qrCanvas: document.getElementById("qrCanvas"),
-  exportPdf: document.getElementById("exportPdf"),
-  poolWarning: document.getElementById("poolWarning"),
+  currentPlayerName: document.getElementById("currentPlayerName"),
+  zoneBadge: document.getElementById("zoneBadge"),
+  turnStatus: document.getElementById("turnStatus"),
+  rollDice: document.getElementById("rollDice"),
+  diceValue: document.getElementById("diceValue"),
+  boardWrap: document.getElementById("boardWrap"),
+  boardSvg: document.getElementById("boardSvg"),
+  centerPlayer: document.getElementById("centerPlayer"),
+  actionIcon: document.getElementById("actionIcon"),
+  actionType: document.getElementById("actionType"),
+  actionMeta: document.getElementById("actionMeta"),
+  actionText: document.getElementById("actionText"),
+  actionMandatory: document.getElementById("actionMandatory"),
+  actionPenalty: document.getElementById("actionPenalty"),
+  actionExecute: document.getElementById("actionExecute"),
+  actionRefuse: document.getElementById("actionRefuse"),
+  actionWarning: document.getElementById("actionWarning"),
   relaxFilters: document.getElementById("relaxFilters"),
-  switchLevel: document.getElementById("switchLevel"),
-  settingsPanel: document.getElementById("settingsPanel"),
-  settingsBackdrop: document.getElementById("settingsBackdrop"),
+  historyList: document.getElementById("historyList"),
+  exportPdf: document.getElementById("exportPdf"),
+  modalBackdrop: document.getElementById("modalBackdrop"),
+  settingsModal: document.getElementById("settingsModal"),
+  deckModal: document.getElementById("deckModal"),
+  cardsModal: document.getElementById("cardsModal"),
+  editModal: document.getElementById("editModal"),
   openSettings: document.getElementById("openSettings"),
-  closeSettings: document.getElementById("closeSettings")
+  playersList: document.getElementById("playersList"),
+  addPlayer: document.getElementById("addPlayer"),
+  removePlayer: document.getElementById("removePlayer"),
+  noNudez: document.getElementById("noNudez"),
+  noDom: document.getElementById("noDom"),
+  noOral: document.getElementById("noOral"),
+  openDeckEditor: document.getElementById("openDeckEditor"),
+  actionsList: document.getElementById("actionsList"),
+  normalCardsList: document.getElementById("normalCardsList"),
+  event6CardsList: document.getElementById("event6CardsList"),
+  addAction: document.getElementById("addAction"),
+  addNormalCard: document.getElementById("addNormalCard"),
+  addEvent6Card: document.getElementById("addEvent6Card"),
+  exportDeck: document.getElementById("exportDeck"),
+  importDeck: document.getElementById("importDeck"),
+  cardsGrid: document.getElementById("cardsGrid"),
+  editTitle: document.getElementById("editTitle"),
+  editForm: document.getElementById("editForm"),
+  editId: document.getElementById("editId"),
+  editKind: document.getElementById("editKind"),
+  editText: document.getElementById("editText"),
+  editZone: document.getElementById("editZone"),
+  editCategory: document.getElementById("editCategory"),
+  editCategoryRow: document.getElementById("editCategoryRow"),
+  editIconRow: document.getElementById("editIconRow"),
+  editIcon: document.getElementById("editIcon"),
+  editMandatoryRow: document.getElementById("editMandatoryRow"),
+  editMandatory: document.getElementById("editMandatory"),
+  banNudez: document.getElementById("banNudez"),
+  banDom: document.getElementById("banDom"),
+  banOral: document.getElementById("banOral")
 };
 
-let itemsCache = [];
-let currentItem = null;
+let boardData = null;
+let actions = [];
+let normalCards = [];
+let event6Cards = [];
+let renderer = null;
+let currentAction = null;
+let actionQueue = [];
+let currentRoll = null;
+let filterWarning = false;
+let pendingCardChoices = null;
+let pendingCardResolve = null;
 
-const levelLabels = { leve: "Leve", quente: "Quente", fogo: "Fogo" };
-const modeLabels = { solo: "Solo", casal: "Casal", grupo: "Grupo" };
-
-const applyQueryParams = () => {
-  const params = new URLSearchParams(window.location.search);
-  if (!params.toString()) return;
-  const level = params.get("level");
-  const mode = params.get("mode");
-  const noRepeat = Number.parseInt(params.get("norepeat"), 10);
-  if (["leve", "quente", "fogo"].includes(level)) state.level = level;
-  if (["solo", "casal", "grupo"].includes(mode)) state.mode = mode;
-  if (!Number.isNaN(noRepeat)) state.noRepeat = Math.min(Math.max(noRepeat, 6), 20);
-  state.filters.noOral = params.get("no_oral") === "1";
-  state.filters.noDom = params.get("no_dom") === "1";
-  state.filters.noNudez = params.get("no_nudez") === "1";
-  const theme = params.get("theme");
-  if (["ember", "sunrise"].includes(theme)) state.theme = theme;
+const zoneLabel = (zone) => {
+  if (zone === "quente") return "Zona Quente";
+  if (zone === "final") return "Zona Final";
+  return "Zona Leve";
 };
 
-const updateTheme = () => {
-  document.body.classList.remove("theme-ember", "theme-sunrise");
-  document.body.classList.add(`theme-${state.theme}`);
-  elements.themeButtons.forEach((button) => {
-    const active = button.dataset.theme === state.theme;
-    button.classList.toggle("active", active);
-    button.setAttribute("aria-pressed", active ? "true" : "false");
-  });
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const matchesFilters = (item) => {
+  if (state.filters.noNudez && item.bans?.nudez) return false;
+  if (state.filters.noDom && item.bans?.dominacao) return false;
+  if (state.filters.noOral && item.bans?.oral) return false;
+  return true;
 };
 
-const updateControls = () => {
-  elements.levelButtons.forEach((button) => {
-    const active = button.dataset.level === state.level;
-    button.classList.toggle("active", active);
-    button.setAttribute("aria-pressed", active ? "true" : "false");
-  });
-  elements.modeButtons.forEach((button) => {
-    const active = button.dataset.mode === state.mode;
-    button.classList.toggle("active", active);
-    button.setAttribute("aria-pressed", active ? "true" : "false");
-  });
-  elements.filterOral.checked = state.filters.noOral;
-  elements.filterDom.checked = state.filters.noDom;
-  elements.filterNudez.checked = state.filters.noNudez;
-  elements.noRepeat.value = String(state.noRepeat);
-  elements.noRepeatValue.textContent = String(state.noRepeat);
-  elements.keywordSearch.value = state.keyword;
-  updateTheme();
-  renderBlockedWords();
-  updateShareLink();
+const pickFromPool = (pool, zone) => {
+  const zonePool = pool.filter((item) => item.zone === zone);
+  const filtered = zonePool.filter(matchesFilters);
+  if (filtered.length) return { item: pickOne(filtered), warning: false };
+  if (zonePool.length) return { item: pickOne(zonePool), warning: true };
+  const fallback = pool.filter(matchesFilters);
+  if (fallback.length) return { item: pickOne(fallback), warning: true };
+  return { item: null, warning: true };
 };
 
-const buildShareLink = () => {
-  const url = new URL(window.location.href);
-  url.searchParams.set("level", state.level);
-  url.searchParams.set("mode", state.mode);
-  url.searchParams.set("theme", state.theme);
-  url.searchParams.set("norepeat", String(state.noRepeat));
-  if (state.filters.noOral) url.searchParams.set("no_oral", "1");
-  else url.searchParams.delete("no_oral");
-  if (state.filters.noDom) url.searchParams.set("no_dom", "1");
-  else url.searchParams.delete("no_dom");
-  if (state.filters.noNudez) url.searchParams.set("no_nudez", "1");
-  else url.searchParams.delete("no_nudez");
-  return url.toString();
-};
-
-const updateShareLink = () => {
-  const link = buildShareLink();
-  elements.shareLink.value = link;
-  drawQr(link);
-};
-
-const drawQr = (link) => {
-  if (!elements.qrCanvas) return;
-  const ctx = elements.qrCanvas.getContext("2d");
-  ctx.clearRect(0, 0, elements.qrCanvas.width, elements.qrCanvas.height);
-  const img = new Image();
-  img.crossOrigin = "anonymous";
-  img.onload = () => {
-    ctx.drawImage(img, 0, 0, elements.qrCanvas.width, elements.qrCanvas.height);
-  };
-  img.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-    link
-  )}`;
-};
-
-const getPool = (type) => {
-  const options = {
-    level: state.level,
-    type,
-    mode: state.mode,
-    filters: state.filters,
-    blockedWords: state.blockedWords,
-    keyword: state.keyword
-  };
-  let filtered = filterItems(itemsCache, options);
-  if (!filtered.length) {
-    filtered = filterItems(getFallbackItems(itemsCache, options), options);
+const buildActionFromTile = (tile) => {
+  if (tile.type === "verdade") {
+    const result = pickFromPool(actions.filter((item) => item.category === "verdade"), tile.zone);
+    if (!result.item) return null;
+    return {
+      ...result.item,
+      source: "tile",
+      type: "verdade",
+      zone: tile.zone,
+      warning: result.warning
+    };
   }
-  return filtered;
+  if (tile.type === "desafio") {
+    const result = pickFromPool(actions.filter((item) => item.category === "desafio"), tile.zone);
+    if (!result.item) return null;
+    return {
+      ...result.item,
+      source: "tile",
+      type: "desafio",
+      zone: tile.zone,
+      warning: result.warning
+    };
+  }
+  if (tile.type === "acao_visual") {
+    const result = pickFromPool(
+      actions.filter((item) => item.category === "acao_visual"),
+      tile.zone
+    );
+    if (!result.item) return null;
+    return {
+      ...result.item,
+      source: "tile",
+      type: "acao_visual",
+      zone: tile.zone,
+      warning: result.warning
+    };
+  }
+  if (tile.type === "especial") {
+    const special = tile.special || { action: "advance", steps: 1 };
+    const textMap = {
+      advance: `Avance ${special.steps || 1} casas agora.`,
+      back: `Volte ${special.steps || 1} casas agora.`,
+      repeat: "Repita a ultima acao executada."
+    };
+    return {
+      id: `special-${tile.id}`,
+      source: "special",
+      type: "especial",
+      zone: tile.zone,
+      text: textMap[special.action] || "Acao especial agora.",
+      icon: "✨",
+      mandatory: true,
+      special
+    };
+  }
+  return null;
 };
 
-const updateWarning = () => {
-  const truthPool = getPool("truth");
-  const darePool = getPool("dare");
-  const show = truthPool.length < 6 || darePool.length < 6;
-  elements.poolWarning.hidden = !show;
+const getTile = (id) => boardData.tiles.find((tile) => tile.id === id);
+
+const updateActionCard = (action) => {
+  if (!action) {
+    elements.actionIcon.textContent = "✨";
+    elements.actionType.textContent = "Pronto para jogar";
+    elements.actionMeta.textContent = "Rolar o dado para comecar";
+    elements.actionText.textContent = "As instrucoes aparecem aqui.";
+    elements.actionMandatory.hidden = true;
+    elements.actionWarning.hidden = true;
+    elements.actionExecute.disabled = true;
+    elements.actionRefuse.disabled = true;
+    return;
+  }
+  elements.actionIcon.textContent = action.icon || "🎯";
+  elements.actionType.textContent = action.type?.toUpperCase() || "ACAO";
+  elements.actionMeta.textContent = action.source === "event6" ? "Carta Evento 6" : "Acao atual";
+  elements.actionText.textContent = action.text || "Acao atual";
+  elements.actionMandatory.hidden = !action.mandatory;
+  elements.actionExecute.disabled = Boolean(action.readOnly);
+  elements.actionRefuse.disabled = Boolean(action.readOnly);
+  elements.actionWarning.hidden = !filterWarning;
 };
 
-const updateActionState = () => {
-  const truthPool = getPool("truth");
-  const darePool = getPool("dare");
-  elements.drawTruth.disabled = !truthPool.length;
-  elements.drawDare.disabled = !darePool.length;
-  elements.drawRandom.disabled = !truthPool.length && !darePool.length;
-  elements.swapItem.disabled = !currentItem;
-  elements.likeItem.disabled = !currentItem;
-  elements.dislikeItem.disabled = !currentItem;
-  elements.copyItem.disabled = !currentItem;
-};
-
-const pushHistory = (item) => {
-  if (state.history[0]?.id === item.id) return;
-  const entry = {
-    id: item.id,
-    timestamp: new Date().toISOString(),
-    type: item.type,
-    level: item.level,
-    mode: state.mode,
-    text: item.text
-  };
+const pushHistory = (entry) => {
   state.history.unshift(entry);
   state.history = state.history.slice(0, 30);
-};
-
-const updateRecent = (itemId) => {
-  state.recentIds = state.recentIds.filter((id) => id !== itemId);
-  state.recentIds.unshift(itemId);
-  state.recentIds = state.recentIds.slice(0, state.noRepeat);
-  state.lastItemId = itemId;
+  saveState(state);
+  renderHistory();
 };
 
 const renderHistory = () => {
   if (!state.history.length) {
-    elements.historyList.innerHTML = "<div class=\"history-empty\">Sem histórico ainda.</div>";
+    elements.historyList.innerHTML = "<div class=\"history-item\">Sem historico ainda.</div>";
     return;
   }
   elements.historyList.innerHTML = state.history
@@ -215,160 +248,487 @@ const renderHistory = () => {
         hour: "2-digit",
         minute: "2-digit"
       });
+      const status = entry.refused ? "Recusado" : "Executado";
       return `
         <div class="history-item">
-          <div class="history-meta">${levelLabels[entry.level]} • ${modeLabels[entry.mode]} • ${
-        entry.type === "truth" ? "Verdade" : "Desafio"
-      } • ${time}</div>
-          <div class="history-text">${entry.text}</div>
+          <strong>${entry.player}</strong> | ${time} | Dado: ${entry.roll ?? "-"} | Casa ${
+        entry.tileId ?? "-"
+      } | ${status}<br />
+          ${entry.text}
         </div>
       `;
     })
     .join("");
 };
 
-const renderBlockedWords = () => {
-  if (!state.blockedWords.length) {
-    elements.blockedList.innerHTML = "<span class=\"muted\">Nenhuma palavra bloqueada.</span>";
-    return;
-  }
-  elements.blockedList.innerHTML = state.blockedWords
+const updatePlayersUI = () => {
+  elements.playersList.innerHTML = state.players
     .map(
-      (word) => `
-        <button class="chip" data-word="${word}" aria-label="Remover palavra bloqueada">
-          ${word} <span aria-hidden="true">×</span>
-        </button>
+      (player, index) => `
+        <div class="player-row">
+          <div class="player-chip" style="background:${player.color}">${index + 1}</div>
+          <input data-player-id="${player.id}" value="${player.name}" />
+          <small>${
+            player.blockedRounds
+              ? "Bloqueado (" + player.blockedRounds + ")"
+              : player.interactionBlocked
+              ? "Sem interacao"
+              : ""
+          }</small>
+        </div>
       `
     )
     .join("");
 };
 
-const updateCard = (item) => {
-  currentItem = item;
-  elements.itemType.textContent = item.type === "truth" ? "Verdade" : "Desafio";
-  elements.itemMeta.textContent = `${levelLabels[item.level]} • ${modeLabels[state.mode]}`;
-  elements.itemText.innerHTML = highlightText(item.text, state.keyword);
-  elements.card.classList.remove("card-animate");
-  void elements.card.offsetWidth;
-  elements.card.classList.add("card-animate");
+const updateTurnUI = () => {
+  const player = state.players[state.currentPlayerIndex];
+  const tile = getTile(player.position);
+  if (player.blockedRounds === 0) {
+    player.interactionBlocked = false;
+  }
+  elements.currentPlayerName.textContent = player.name;
+  elements.zoneBadge.textContent = zoneLabel(tile.zone);
+  elements.turnStatus.textContent = player.blockedRounds
+    ? "Bloqueado (1 rodada). Clique rolar para passar."
+    : "";
+  elements.rollDice.disabled = Boolean(currentAction) || state.gameOver;
 };
 
-const drawItem = (type) => {
-  const pool = getPool(type);
-  if (!pool.length) return;
-  const item = pickWeighted(pool, state.feedbackScores, {
-    recentIds: state.recentIds,
-    lastId: state.lastItemId
+const rollDice = async () => {
+  const player = state.players[state.currentPlayerIndex];
+  if (player.blockedRounds > 0) {
+    player.blockedRounds = Math.max(0, player.blockedRounds - 1);
+    advanceTurn();
+    saveState(state);
+    return;
+  }
+  if (currentAction || state.gameOver) return;
+  elements.rollDice.disabled = true;
+  elements.diceValue.textContent = "🎲";
+  const cycles = randInt(8, 12);
+  for (let i = 0; i < cycles; i += 1) {
+    elements.diceValue.textContent = String(randInt(1, 6));
+    await wait(70);
+  }
+  const roll = randInt(1, 6);
+  currentRoll = roll;
+  elements.diceValue.textContent = String(roll);
+  await movePlayer(player, roll);
+  const tile = getTile(player.position);
+  await resolveTile(tile, roll);
+  updateTurnUI();
+};
+
+const movePlayer = async (player, steps, direction = 1) => {
+  const maxId = Math.max(...boardData.tiles.map((tile) => tile.id));
+  for (let i = 0; i < steps; i += 1) {
+    player.position = clamp(player.position + direction, 1, maxId);
+    renderer.updateTokens(state.players);
+    await wait(320);
+  }
+};
+
+const resolveTile = async (tile, roll) => {
+  if (!tile) return;
+  if (tile.type === "finish") {
+    state.gameOver = true;
+    actionQueue = [];
+    currentAction = {
+      id: "finish",
+      source: "finish",
+      type: "fim",
+      text: "Fim de jogo. Jogador venceu.",
+      icon: "🏁",
+      mandatory: false,
+      readOnly: true
+    };
+    updateActionCard(currentAction);
+    return;
+  }
+  if (tile.type === "comprar_carta") {
+    await openCardsChoice(tile);
+  } else {
+    const action = buildActionFromTile(tile);
+    queueAction(action);
+  }
+  if (roll === 6) {
+    const eventCard = pickFromPool(event6Cards, tile.zone);
+    if (eventCard.item) {
+      queueAction({ ...eventCard.item, source: "event6", mandatory: true, warning: eventCard.warning });
+    } else {
+      filterWarning = true;
+    }
+  }
+  processNextAction();
+};
+
+const queueAction = (action) => {
+  if (!action) return;
+  actionQueue.push(action);
+};
+
+const processNextAction = () => {
+  if (currentAction) return;
+  if (!actionQueue.length) return;
+  currentAction = actionQueue.shift();
+  filterWarning = Boolean(currentAction.warning);
+  updateActionCard(currentAction);
+};
+
+const openCardsChoice = (tile) =>
+  new Promise((resolve) => {
+    const pool = normalCards.filter((card) => card.zone === tile.zone);
+    const filtered = pool.filter(matchesFilters);
+    const selection = filtered.length ? filtered : pool;
+    filterWarning = filtered.length === 0;
+    const choices = pickMany(selection, 3);
+    if (!choices.length) {
+      filterWarning = true;
+      resolve(null);
+      return;
+    }
+    pendingCardChoices = choices;
+    pendingCardResolve = (selected) => {
+      closeModal(elements.cardsModal, elements.modalBackdrop);
+      if (selected) {
+        queueAction({ ...selected, source: "normal", mandatory: false, warning: filterWarning });
+      }
+      resolve(selected);
+      pendingCardChoices = null;
+      pendingCardResolve = null;
+    };
+    elements.cardsGrid.innerHTML = choices
+      .map(
+        (card) => `
+          <div class="card-choice" data-id="${card.id}">
+            <strong>${card.type?.toUpperCase() || "CARTA"}</strong>
+            <p>${card.text}</p>
+          </div>
+        `
+      )
+      .join("");
+    openModal(elements.cardsModal, elements.modalBackdrop);
+    elements.cardsGrid.querySelectorAll(".card-choice").forEach((cardEl) => {
+      cardEl.addEventListener("click", () => {
+        const selected = choices.find((card) => card.id === cardEl.dataset.id);
+        pendingCardResolve(selected);
+      });
+    });
   });
-  if (!item) return;
-  updateCard(item);
-  pushHistory(item);
-  updateRecent(item.id);
-  renderHistory();
-  updateWarning();
-  updateActionState();
-  saveState(state);
+
+const applyPenalty = async (player) => {
+  await movePlayer(player, 3, -1);
+  player.blockedRounds = 1;
+  player.interactionBlocked = true;
+  return "Penalidade: voltou 3 casas, perdeu 1 rodada e ficou sem interacao.";
 };
 
-const swapCurrent = () => {
-  if (!currentItem) return;
-  const pool = getPool(currentItem.type);
-  const next = pickEquivalent(pool, currentItem, state.feedbackScores, {
-    recentIds: state.recentIds,
-    lastId: state.lastItemId
+const resolveAction = async (refused) => {
+  if (!currentAction) return;
+  const player = state.players[state.currentPlayerIndex];
+  const tile = getTile(player.position);
+  let penaltyNote = "";
+  if (refused) {
+    penaltyNote = await applyPenalty(player);
+  } else if (currentAction.source === "special" && currentAction.special) {
+    if (currentAction.special.action === "advance") {
+      await movePlayer(player, currentAction.special.steps || 1);
+      const landed = getTile(player.position);
+      if (landed.type === "finish") {
+        state.gameOver = true;
+        actionQueue = [];
+        queueAction({
+          id: "finish",
+          source: "finish",
+          type: "fim",
+          text: "Fim de jogo. Jogador venceu.",
+          icon: "🏁",
+          mandatory: false,
+          readOnly: true
+        });
+      } else if (landed.type === "comprar_carta") {
+        await openCardsChoice(landed);
+      } else {
+        queueAction(buildActionFromTile(landed));
+      }
+    }
+    if (currentAction.special.action === "back") {
+      await movePlayer(player, currentAction.special.steps || 1, -1);
+      const landed = getTile(player.position);
+      if (landed.type === "finish") {
+        state.gameOver = true;
+        actionQueue = [];
+        queueAction({
+          id: "finish",
+          source: "finish",
+          type: "fim",
+          text: "Fim de jogo. Jogador venceu.",
+          icon: "🏁",
+          mandatory: false,
+          readOnly: true
+        });
+      } else if (landed.type === "comprar_carta") {
+        await openCardsChoice(landed);
+      } else {
+        queueAction(buildActionFromTile(landed));
+      }
+    }
+  }
+  pushHistory({
+    timestamp: new Date().toISOString(),
+    player: player.name,
+    roll: currentRoll,
+    tileId: tile?.id,
+    tileType: tile?.type,
+    text: refused && penaltyNote ? `${currentAction.text} (${penaltyNote})` : currentAction.text,
+    refused
   });
-  if (!next) return;
-  updateCard(next);
-  pushHistory(next);
-  updateRecent(next.id);
-  renderHistory();
-  updateWarning();
-  updateActionState();
+  currentAction = null;
+  updateActionCard(null);
+  processNextAction();
+  if (!currentAction) advanceTurn();
+};
+
+const advanceTurn = () => {
+  currentRoll = null;
+  state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
   saveState(state);
+  updateTurnUI();
+  updatePlayersUI();
 };
 
-const applyFeedback = (delta) => {
-  if (!currentItem) return;
-  state.feedbackScores[currentItem.id] = updateScore(
-    state.feedbackScores[currentItem.id],
-    delta
-  );
-  saveState(state);
+const centerOnPlayer = () => {
+  const player = state.players[state.currentPlayerIndex];
+  const tile = getTile(player.position);
+  if (!tile) return;
+  const rect = elements.boardWrap.getBoundingClientRect();
+  const svgRect = elements.boardSvg.getBoundingClientRect();
+  const scaleX = svgRect.width / boardData.width;
+  const scaleY = svgRect.height / boardData.height;
+  const x = tile.x * scaleX;
+  const y = tile.y * scaleY;
+  elements.boardWrap.scrollTo({
+    left: x - rect.width / 2,
+    top: y - rect.height / 2,
+    behavior: "smooth"
+  });
 };
 
-const copyCurrentItem = () => {
-  if (!currentItem) return;
-  navigator.clipboard.writeText(currentItem.text);
-};
-
-const copyHistory = () => {
-  const text = state.history
+const renderDeckEditor = () => {
+  elements.actionsList.innerHTML = actions
     .map(
-      (entry) =>
-        `${levelLabels[entry.level]} | ${modeLabels[entry.mode]} | ${
-          entry.type === "truth" ? "Verdade" : "Desafio"
-        } | ${entry.text}`
+      (item) => `
+        <div class="editor-item" data-kind="action" data-id="${item.id}">
+          <div>
+            <strong>${item.category}</strong> <small>${item.zone}</small>
+            <div>${item.text}</div>
+          </div>
+          <div>
+            <button class="btn ghost" data-edit>Editar</button>
+            <button class="btn ghost" data-duplicate>Duplicar</button>
+            ${item.user ? "<button class=\"btn ghost\" data-remove>Remover</button>" : ""}
+          </div>
+        </div>
+      `
     )
-    .join("\n");
-  navigator.clipboard.writeText(text);
+    .join("");
+
+  elements.normalCardsList.innerHTML = normalCards
+    .map(
+      (item) => `
+        <div class="editor-item" data-kind="normal" data-id="${item.id}">
+          <div>
+            <strong>${item.type || "normal"}</strong> <small>${item.zone}</small>
+            <div>${item.text}</div>
+          </div>
+          <div>
+            <button class="btn ghost" data-edit>Editar</button>
+            <button class="btn ghost" data-duplicate>Duplicar</button>
+            ${item.user ? "<button class=\"btn ghost\" data-remove>Remover</button>" : ""}
+          </div>
+        </div>
+      `
+    )
+    .join("");
+
+  elements.event6CardsList.innerHTML = event6Cards
+    .map(
+      (item) => `
+        <div class="editor-item" data-kind="event6" data-id="${item.id}">
+          <div>
+            <strong>${item.type || "evento"}</strong> <small>${item.zone}</small>
+            <div>${item.text}</div>
+          </div>
+          <div>
+            <button class="btn ghost" data-edit>Editar</button>
+            <button class="btn ghost" data-duplicate>Duplicar</button>
+            ${item.user ? "<button class=\"btn ghost\" data-remove>Remover</button>" : ""}
+          </div>
+        </div>
+      `
+    )
+    .join("");
 };
 
-const clearHistory = () => {
-  state.history = [];
-  renderHistory();
-  saveState(state);
+const openEditModal = (kind, item) => {
+  elements.editKind.value = kind;
+  elements.editId.value = item?.id || "";
+  elements.editText.value = item?.text || "";
+  elements.editZone.value = item?.zone || "leve";
+  elements.editCategory.value = item?.category || "verdade";
+  elements.editIcon.value = item?.icon || "";
+  elements.editMandatory.checked = Boolean(item?.mandatory);
+  elements.banNudez.checked = Boolean(item?.bans?.nudez);
+  elements.banDom.checked = Boolean(item?.bans?.dominacao);
+  elements.banOral.checked = Boolean(item?.bans?.oral);
+  const isAction = kind === "action";
+  elements.editCategoryRow.style.display = isAction ? "grid" : "none";
+  elements.editIconRow.style.display = isAction ? "grid" : "none";
+  elements.editMandatoryRow.style.display = isAction ? "grid" : "none";
+  elements.editTitle.textContent = item ? "Editar item" : "Adicionar item";
+  openModal(elements.editModal, elements.modalBackdrop);
 };
 
-const resetRepetition = () => {
-  state.recentIds = [];
-  state.lastItemId = null;
-  saveState(state);
+const applyEdits = (payload) => {
+  if (payload.kind === "action") {
+    const userActions = loadCollection(USER_ACTIONS_KEY, []);
+    const existingIndex = userActions.findIndex((item) => item.id === payload.id);
+    if (existingIndex >= 0) userActions[existingIndex] = payload.item;
+    else userActions.push(payload.item);
+    saveCollection(USER_ACTIONS_KEY, userActions);
+  }
+  if (payload.kind === "normal") {
+    const userCards = loadCollection(USER_NORMAL_KEY, []);
+    const existingIndex = userCards.findIndex((item) => item.id === payload.id);
+    if (existingIndex >= 0) userCards[existingIndex] = payload.item;
+    else userCards.push(payload.item);
+    saveCollection(USER_NORMAL_KEY, userCards);
+  }
+  if (payload.kind === "event6") {
+    const userCards = loadCollection(USER_EVENT6_KEY, []);
+    const existingIndex = userCards.findIndex((item) => item.id === payload.id);
+    if (existingIndex >= 0) userCards[existingIndex] = payload.item;
+    else userCards.push(payload.item);
+    saveCollection(USER_EVENT6_KEY, userCards);
+  }
+  reloadCollections();
+};
+
+const reloadCollections = async () => {
+  const baseActions = await fetch("data/actions.json").then((res) => res.json());
+  const baseNormal = await fetch("data/normal_cards.json").then((res) => res.json());
+  const baseEvent6 = await fetch("data/event6_cards.json").then((res) => res.json());
+  const userActions = loadCollection(USER_ACTIONS_KEY, []).map((item) => ({ ...item, user: true }));
+  const userNormal = loadCollection(USER_NORMAL_KEY, []).map((item) => ({ ...item, user: true }));
+  const userEvent6 = loadCollection(USER_EVENT6_KEY, []).map((item) => ({ ...item, user: true }));
+  const { valid: validActions } = validateActions(baseActions.concat(userActions));
+  const { valid: validNormal } = validateCards(baseNormal.concat(userNormal));
+  const { valid: validEvent6 } = validateCards(baseEvent6.concat(userEvent6));
+  actions = validActions.map(withBans);
+  normalCards = validNormal.map(withBans);
+  event6Cards = validEvent6.map(withBans);
+  renderDeckEditor();
+};
+
+const setupDeckEditorEvents = () => {
+  const handleListClick = (event, list, kind) => {
+    const target = event.target.closest(".editor-item");
+    if (!target) return;
+    const id = target.dataset.id;
+    const items = kind === "action" ? actions : kind === "normal" ? normalCards : event6Cards;
+    const item = items.find((entry) => entry.id === id);
+    if (event.target.hasAttribute("data-edit")) {
+      const editable = item.user ? item : { ...item, id: `${item.id}-copy`, user: true };
+      openEditModal(kind, editable);
+    }
+    if (event.target.hasAttribute("data-duplicate")) {
+      const duplicated = { ...item, id: `${item.id}-${Date.now()}`, user: true };
+      applyEdits({ kind, id: duplicated.id, item: duplicated });
+    }
+    if (event.target.hasAttribute("data-remove") && item.user) {
+      const key = kind === "action" ? USER_ACTIONS_KEY : kind === "normal" ? USER_NORMAL_KEY : USER_EVENT6_KEY;
+      const collection = loadCollection(key, []);
+      const next = collection.filter((entry) => entry.id !== id);
+      saveCollection(key, next);
+      reloadCollections();
+    }
+  };
+
+  elements.actionsList.addEventListener("click", (event) =>
+    handleListClick(event, elements.actionsList, "action")
+  );
+  elements.normalCardsList.addEventListener("click", (event) =>
+    handleListClick(event, elements.normalCardsList, "normal")
+  );
+  elements.event6CardsList.addEventListener("click", (event) =>
+    handleListClick(event, elements.event6CardsList, "event6")
+  );
+};
+
+const exportDeck = () => {
+  const payload = {
+    actions: loadCollection(USER_ACTIONS_KEY, []),
+    normalCards: loadCollection(USER_NORMAL_KEY, []),
+    event6Cards: loadCollection(USER_EVENT6_KEY, [])
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "fogo-seda-meu-baralho.json";
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
+const importDeck = (file) => {
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      if (Array.isArray(parsed.actions)) saveCollection(USER_ACTIONS_KEY, parsed.actions);
+      if (Array.isArray(parsed.normalCards)) saveCollection(USER_NORMAL_KEY, parsed.normalCards);
+      if (Array.isArray(parsed.event6Cards)) saveCollection(USER_EVENT6_KEY, parsed.event6Cards);
+      reloadCollections();
+    } catch (error) {
+      console.warn("Falha ao importar JSON.", error);
+    }
+  };
+  reader.readAsText(file);
 };
 
 const exportPdf = () => {
   const win = window.open("", "_blank");
   if (!win) return;
-  const historyList = state.history.slice(0, 30);
-  const filterParts = [];
-  if (state.filters.noOral) filterParts.push("sem oral");
-  if (state.filters.noDom) filterParts.push("sem dominacao");
-  if (state.filters.noNudez) filterParts.push("sem nudez");
-  const settings = `
-    <ul>
-      <li>Nível: ${levelLabels[state.level]}</li>
-      <li>Modo: ${modeLabels[state.mode]}</li>
-      <li>Filtros: ${filterParts.length ? filterParts.join(", ") : "sem filtros"}</li>
-      <li>Antirrepetição: ${state.noRepeat}</li>
-      <li>Tema: ${state.theme}</li>
-    </ul>
-  `;
-  const entries = historyList
-    .map(
-      (entry) => `<li><strong>${entry.type === "truth" ? "Verdade" : "Desafio"}:</strong> ${
-        entry.text
-      }</li>`
-    )
+  const filters = [];
+  if (state.filters.noNudez) filters.push("sem nudez");
+  if (state.filters.noDom) filters.push("sem dominacao");
+  if (state.filters.noOral) filters.push("sem oral");
+  const historyHtml = state.history
+    .slice(0, 30)
+    .map((entry) => `<li>${entry.player}: ${entry.text} (${entry.refused ? "recusado" : "ok"})</li>`)
     .join("");
   win.document.write(`
     <html>
       <head>
-        <title>Fogo & Seda - Histórico</title>
+        <title>Fogo & Seda - Historico</title>
         <style>
-          body { font-family: "Georgia", serif; padding: 32px; line-height: 1.4; }
+          body { font-family: Georgia, serif; padding: 24px; line-height: 1.4; }
           h1 { margin-bottom: 4px; }
-          h2 { margin-top: 24px; }
-          ul { padding-left: 18px; }
         </style>
       </head>
       <body>
-        <h1>Fogo & Seda - Verdade ou Consequência</h1>
+        <h1>Fogo & Seda</h1>
         <div>${new Date().toLocaleString("pt-BR")}</div>
-        <h2>Configurações</h2>
-        ${settings}
-        <h2>Histórico recente</h2>
-        <ol>${entries || "<li>Sem itens ainda.</li>"}</ol>
+        <h2>Configuracoes</h2>
+        <ul>
+          <li>Jogadores: ${state.players.map((player) => player.name).join(", ")}</li>
+          <li>Filtros: ${filters.length ? filters.join(", ") : "nenhum"}</li>
+        </ul>
+        <h2>Historico recente</h2>
+        <ol>${historyHtml || "<li>Sem registros.</li>"}</ol>
         <h2>18+ e consentimento</h2>
-        <p>Este jogo é para maiores de 18. Consentimento explícito e limites claros são obrigatórios.</p>
+        <p>Jogo para maiores de 18. Consentimento explicito e limites claros sao obrigatorios.</p>
       </body>
     </html>
   `);
@@ -377,161 +737,179 @@ const exportPdf = () => {
   win.print();
 };
 
-const handleFilterChange = () => {
-  updateWarning();
-  updateActionState();
-  updateShareLink();
-  if (currentItem && !getPool(currentItem.type).some((item) => item.id === currentItem.id)) {
-    swapCurrent();
-  }
-  saveState(state);
+const setupTabs = () => {
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach((button) => button.classList.remove("active"));
+      document.querySelectorAll(".tab-panel").forEach((panel) => panel.classList.remove("active"));
+      tab.classList.add("active");
+      const target = tab.dataset.tab;
+      document.querySelector(`[data-panel="${target}"]`).classList.add("active");
+    });
+  });
 };
 
 const setupListeners = () => {
-  elements.drawTruth.addEventListener("click", () => drawItem("truth"));
-  elements.drawDare.addEventListener("click", () => drawItem("dare"));
-  elements.drawRandom.addEventListener("click", () =>
-    drawItem(Math.random() < 0.5 ? "truth" : "dare")
+  elements.rollDice.addEventListener("click", rollDice);
+  elements.centerPlayer.addEventListener("click", centerOnPlayer);
+  elements.actionExecute.addEventListener("click", () => resolveAction(false));
+  elements.actionRefuse.addEventListener("click", () => resolveAction(true));
+  elements.openSettings.addEventListener("click", () =>
+    openModal(elements.settingsModal, elements.modalBackdrop)
   );
-  elements.swapItem.addEventListener("click", swapCurrent);
-  elements.reshuffle.addEventListener("click", () => {
-    resetRepetition();
-    updateWarning();
-  });
-  elements.likeItem.addEventListener("click", () => applyFeedback(1));
-  elements.dislikeItem.addEventListener("click", () => applyFeedback(-1));
-  elements.copyItem.addEventListener("click", copyCurrentItem);
-  elements.copyHistory.addEventListener("click", copyHistory);
-  elements.clearHistory.addEventListener("click", clearHistory);
-  elements.exportPdf.addEventListener("click", exportPdf);
-  elements.blockKeyword.addEventListener("click", () => {
-    const word = state.keyword.trim();
-    if (!word) return;
-    if (!state.blockedWords.includes(word)) state.blockedWords.push(word);
-    state.keyword = "";
-    elements.keywordSearch.value = "";
-    renderBlockedWords();
-    handleFilterChange();
-  });
-  elements.blockedList.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-word]");
-    if (!button) return;
-    const word = button.dataset.word;
-    state.blockedWords = state.blockedWords.filter((item) => item !== word);
-    renderBlockedWords();
-    handleFilterChange();
-  });
-  elements.keywordSearch.addEventListener("input", () => {
-    state.keyword = elements.keywordSearch.value;
-    updateWarning();
-    if (currentItem && !includesNormalized(currentItem.text, state.keyword)) {
-      swapCurrent();
-    } else if (currentItem) {
-      elements.itemText.innerHTML = highlightText(currentItem.text, state.keyword);
-    }
+  bindModal(elements.settingsModal, elements.modalBackdrop);
+  bindModal(elements.deckModal, elements.modalBackdrop);
+  bindModal(elements.editModal, elements.modalBackdrop);
+
+  elements.addPlayer.addEventListener("click", () => {
+    if (state.players.length >= 6) return;
+    const id = `p${state.players.length + 1}`;
+    const color = PLAYER_COLORS[state.players.length % PLAYER_COLORS.length];
+    state.players.push({
+      id,
+      name: `Jogador ${state.players.length + 1}`,
+      color,
+      position: 1,
+      blockedRounds: 0,
+      interactionBlocked: false
+    });
+    updatePlayersUI();
+    renderer.createTokens(state.players.map((p, i) => ({ ...p, label: String(i + 1) })));
+    renderer.updateTokens(state.players);
     saveState(state);
   });
-  elements.filterOral.addEventListener("change", () => {
-    state.filters.noOral = elements.filterOral.checked;
-    handleFilterChange();
-  });
-  elements.filterDom.addEventListener("change", () => {
-    state.filters.noDom = elements.filterDom.checked;
-    handleFilterChange();
-  });
-  elements.filterNudez.addEventListener("change", () => {
-    state.filters.noNudez = elements.filterNudez.checked;
-    handleFilterChange();
-  });
-  elements.levelButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      state.level = button.dataset.level;
-      updateControls();
-      handleFilterChange();
-    });
-  });
-  elements.modeButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      state.mode = button.dataset.mode;
-      updateControls();
-      handleFilterChange();
-    });
-  });
-  elements.noRepeat.addEventListener("input", () => {
-    state.noRepeat = Number.parseInt(elements.noRepeat.value, 10);
-    elements.noRepeatValue.textContent = String(state.noRepeat);
-    state.recentIds = state.recentIds.slice(0, state.noRepeat);
+  elements.removePlayer.addEventListener("click", () => {
+    if (state.players.length <= 2) return;
+    state.players.pop();
+    if (state.currentPlayerIndex >= state.players.length) state.currentPlayerIndex = 0;
+    updatePlayersUI();
+    renderer.createTokens(state.players.map((p, i) => ({ ...p, label: String(i + 1) })));
+    renderer.updateTokens(state.players);
     saveState(state);
   });
-  elements.themeButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      state.theme = button.dataset.theme;
-      updateTheme();
-      updateShareLink();
+
+  elements.playersList.addEventListener("input", (event) => {
+    const input = event.target.closest("input[data-player-id]");
+    if (!input) return;
+    const player = state.players.find((entry) => entry.id === input.dataset.playerId);
+    if (player) {
+      player.name = input.value;
+      updateTurnUI();
       saveState(state);
-    });
+    }
   });
-  elements.copyShare.addEventListener("click", () => {
-    navigator.clipboard.writeText(elements.shareLink.value);
+
+  elements.noNudez.addEventListener("change", () => {
+    state.filters.noNudez = elements.noNudez.checked;
+    saveState(state);
   });
+  elements.noDom.addEventListener("change", () => {
+    state.filters.noDom = elements.noDom.checked;
+    saveState(state);
+  });
+  elements.noOral.addEventListener("change", () => {
+    state.filters.noOral = elements.noOral.checked;
+    saveState(state);
+  });
+
+  elements.openDeckEditor.addEventListener("click", () =>
+    openModal(elements.deckModal, elements.modalBackdrop)
+  );
+  elements.addAction.addEventListener("click", () => openEditModal("action", null));
+  elements.addNormalCard.addEventListener("click", () => openEditModal("normal", null));
+  elements.addEvent6Card.addEventListener("click", () => openEditModal("event6", null));
+
+  elements.exportDeck.addEventListener("click", exportDeck);
+  elements.importDeck.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) importDeck(file);
+    event.target.value = "";
+  });
+  elements.exportPdf.addEventListener("click", exportPdf);
   elements.relaxFilters.addEventListener("click", () => {
-    state.filters = { noOral: false, noDom: false, noNudez: false };
-    state.keyword = "";
-    updateControls();
-    handleFilterChange();
+    state.filters = { noNudez: false, noDom: false, noOral: false };
+    elements.noNudez.checked = false;
+    elements.noDom.checked = false;
+    elements.noOral.checked = false;
+    filterWarning = false;
+    updateActionCard(currentAction);
+    saveState(state);
   });
-  elements.switchLevel.addEventListener("click", () => {
-    state.level = "leve";
-    updateControls();
-    handleFilterChange();
+
+  elements.editForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const kind = elements.editKind.value;
+    const id = elements.editId.value || `${kind}-${Date.now()}`;
+    const item = {
+      id,
+      text: elements.editText.value.trim(),
+      zone: elements.editZone.value,
+      bans: {
+        nudez: elements.banNudez.checked,
+        dominacao: elements.banDom.checked,
+        oral: elements.banOral.checked
+      },
+      user: true
+    };
+    if (kind === "action") {
+      item.category = elements.editCategory.value;
+      item.icon = elements.editIcon.value.trim() || "✨";
+      item.mandatory = elements.editMandatory.checked;
+    }
+    applyEdits({ kind, id, item });
+    closeModal(elements.editModal, elements.modalBackdrop);
   });
-  elements.openSettings.addEventListener("click", () => {
-    elements.settingsPanel.classList.add("open");
-    elements.settingsBackdrop.hidden = false;
+
+  const closeCardsModal = () => {
+    if (!pendingCardResolve) {
+      closeModal(elements.cardsModal, elements.modalBackdrop);
+      return;
+    }
+    const selected = pickOne(pendingCardChoices || []);
+    pendingCardResolve(selected);
+  };
+
+  elements.cardsModal.querySelectorAll("[data-close-modal]").forEach((button) => {
+    button.addEventListener("click", closeCardsModal);
   });
-  elements.closeSettings.addEventListener("click", () => {
-    elements.settingsPanel.classList.remove("open");
-    elements.settingsBackdrop.hidden = true;
-  });
-  elements.settingsBackdrop.addEventListener("click", () => {
-    elements.settingsPanel.classList.remove("open");
-    elements.settingsBackdrop.hidden = true;
-  });
+
   window.addEventListener("keydown", (event) => {
-    const target = event.target;
-    const isField =
-      target instanceof HTMLInputElement ||
-      target instanceof HTMLTextAreaElement ||
-      target instanceof HTMLSelectElement ||
-      target.isContentEditable;
-    if (isField) return;
     if (event.code === "Space") {
       event.preventDefault();
-      drawItem(Math.random() < 0.5 ? "truth" : "dare");
+      rollDice();
     }
-    if (event.key.toLowerCase() === "v") drawItem("truth");
-    if (event.key.toLowerCase() === "d") drawItem("dare");
-    if (event.key.toLowerCase() === "r") resetRepetition();
     if (event.key === "Escape") {
-      elements.settingsPanel.classList.remove("open");
-      elements.settingsBackdrop.hidden = true;
+      if (elements.cardsModal.classList.contains("open")) {
+        closeCardsModal();
+        return;
+      }
+      closeModal(elements.settingsModal, elements.modalBackdrop);
+      closeModal(elements.deckModal, elements.modalBackdrop);
+      closeModal(elements.editModal, elements.modalBackdrop);
     }
   });
 };
 
 const init = async () => {
-  const response = await fetch("data/items.json");
-  const data = await response.json();
-  const { validItems, errors } = validateItems(data);
-  if (errors.length) {
-    console.warn("Itens com problemas:", errors);
-  }
-  itemsCache = validItems;
-  applyQueryParams();
-  updateControls();
+  boardData = await fetch("data/board.json").then((res) => res.json());
+  await reloadCollections();
+  renderer = new BoardRenderer(elements.boardSvg, {
+    onTileClick: (tile) => {
+      currentAction = { text: `Casa ${tile.id} (${tile.type})`, icon: "🔎" };
+      updateActionCard(currentAction);
+    }
+  });
+  renderer.load(boardData);
+  renderer.createTokens(state.players.map((player, index) => ({ ...player, label: String(index + 1) })));
+  renderer.updateTokens(state.players);
+  elements.noNudez.checked = state.filters.noNudez;
+  elements.noDom.checked = state.filters.noDom;
+  elements.noOral.checked = state.filters.noOral;
+  updatePlayersUI();
+  updateTurnUI();
   renderHistory();
-  updateWarning();
-  updateActionState();
+  setupDeckEditorEvents();
+  setupTabs();
   setupListeners();
   saveState(state);
 };

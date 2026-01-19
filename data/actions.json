@@ -1,0 +1,322 @@
+[
+  {
+    "id": "v-1",
+    "category": "verdade",
+    "zone": "leve",
+    "text": "Diga um limite que voce quer manter hoje.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "v-2",
+    "category": "verdade",
+    "zone": "leve",
+    "text": "Fale um elogio direto para alguem.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "v-3",
+    "category": "verdade",
+    "zone": "leve",
+    "text": "Conte algo que te deixa a vontade.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "v-4",
+    "category": "verdade",
+    "zone": "leve",
+    "text": "Diga uma coisa que voce quer experimentar.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "v-5",
+    "category": "verdade",
+    "zone": "quente",
+    "text": "Fale onde gosta de ser tocado.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "v-6",
+    "category": "verdade",
+    "zone": "quente",
+    "text": "Conte uma fantasia simples.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "v-7",
+    "category": "verdade",
+    "zone": "quente",
+    "text": "Diga quem voce escolheria para uma dupla agora.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "v-8",
+    "category": "verdade",
+    "zone": "final",
+    "text": "Fale o que voce quer no final do jogo.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "v-9",
+    "category": "verdade",
+    "zone": "final",
+    "text": "Diga qual acao foi a melhor ate agora.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "v-10",
+    "category": "verdade",
+    "zone": "final",
+    "text": "Fale o que voce quer que aconteca em seguida.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "d-1",
+    "category": "desafio",
+    "zone": "leve",
+    "text": "Toque a mao de alguem por 10 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "d-2",
+    "category": "desafio",
+    "zone": "leve",
+    "text": "Sente mais perto de alguem agora.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "d-3",
+    "category": "desafio",
+    "zone": "leve",
+    "text": "Beijo rapido com quem voce escolher.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "d-4",
+    "category": "desafio",
+    "zone": "leve",
+    "text": "Retire um acessorio agora.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "d-5",
+    "category": "desafio",
+    "zone": "quente",
+    "text": "Beijo lento por 10 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "d-6",
+    "category": "desafio",
+    "zone": "quente",
+    "text": "Abrace alguem por 20 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "d-7",
+    "category": "desafio",
+    "zone": "quente",
+    "text": "Fique sem usar as maos por 15 segundos.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "d-8",
+    "category": "desafio",
+    "zone": "final",
+    "text": "Beijo longo por 20 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "d-9",
+    "category": "desafio",
+    "zone": "final",
+    "text": "Encoste corpo com corpo por 25 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "d-10",
+    "category": "desafio",
+    "zone": "final",
+    "text": "Fique de olhos fechados por 20 segundos.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "a-1",
+    "category": "acao_visual",
+    "zone": "leve",
+    "icon": "💫",
+    "text": "Retire uma camada de roupa agora.",
+    "mandatory": false,
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-2",
+    "category": "acao_visual",
+    "zone": "leve",
+    "icon": "🖐️",
+    "text": "Toque alguem por 10 segundos.",
+    "mandatory": false,
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-3",
+    "category": "acao_visual",
+    "zone": "leve",
+    "icon": "👀",
+    "text": "Faca contato visual forte por 10 segundos.",
+    "mandatory": false,
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-4",
+    "category": "acao_visual",
+    "zone": "leve",
+    "icon": "🧩",
+    "text": "Escolha alguem para tirar um acessorio.",
+    "mandatory": false,
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-5",
+    "category": "acao_visual",
+    "zone": "leve",
+    "icon": "🤝",
+    "text": "Fique de mao dada por 20 segundos.",
+    "mandatory": false,
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-6",
+    "category": "acao_visual",
+    "zone": "leve",
+    "icon": "💬",
+    "text": "Diga uma ordem leve para alguem.",
+    "mandatory": false,
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "a-7",
+    "category": "acao_visual",
+    "zone": "quente",
+    "icon": "🔥",
+    "text": "Fique sem uma peca de roupa ate seu proximo turno.",
+    "mandatory": true,
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-8",
+    "category": "acao_visual",
+    "zone": "quente",
+    "icon": "🧭",
+    "text": "Escolha quem decide sua proxima acao.",
+    "mandatory": true,
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "a-9",
+    "category": "acao_visual",
+    "zone": "quente",
+    "icon": "💥",
+    "text": "Beijo lento por 15 segundos.",
+    "mandatory": true,
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-10",
+    "category": "acao_visual",
+    "zone": "quente",
+    "icon": "🪶",
+    "text": "Toque combinado por 20 segundos.",
+    "mandatory": true,
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-11",
+    "category": "acao_visual",
+    "zone": "quente",
+    "icon": "⛓️",
+    "text": "Fique com os pulsos juntos por 20 segundos.",
+    "mandatory": true,
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "a-12",
+    "category": "acao_visual",
+    "zone": "quente",
+    "icon": "🎯",
+    "text": "Escolha alguem para um toque direto.",
+    "mandatory": true,
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-13",
+    "category": "acao_visual",
+    "zone": "final",
+    "icon": "🌶️",
+    "text": "Retire duas camadas de roupa agora.",
+    "mandatory": true,
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-14",
+    "category": "acao_visual",
+    "zone": "final",
+    "icon": "🗝️",
+    "text": "Escolha alguem para guiar voce por 20 segundos.",
+    "mandatory": true,
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "a-15",
+    "category": "acao_visual",
+    "zone": "final",
+    "icon": "⚡",
+    "text": "Abrace por 25 segundos sem soltar.",
+    "mandatory": true,
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-16",
+    "category": "acao_visual",
+    "zone": "final",
+    "icon": "🧲",
+    "text": "Encoste corpo com corpo por 25 segundos.",
+    "mandatory": true,
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-17",
+    "category": "acao_visual",
+    "zone": "final",
+    "icon": "🛑",
+    "text": "Sem falar ate seu proximo turno.",
+    "mandatory": true,
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-18",
+    "category": "acao_visual",
+    "zone": "final",
+    "icon": "🎭",
+    "text": "Escolha alguem para uma ordem direta.",
+    "mandatory": true,
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "a-19",
+    "category": "acao_visual",
+    "zone": "final",
+    "icon": "💣",
+    "text": "Acao em dupla por 30 segundos.",
+    "mandatory": true,
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "a-20",
+    "category": "acao_visual",
+    "zone": "final",
+    "icon": "👑",
+    "text": "Escolha quem decide a proxima rodada.",
+    "mandatory": true,
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  }
+]

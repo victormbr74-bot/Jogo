@@ -1,0 +1,282 @@
+[
+  {
+    "id": "n-1",
+    "type": "leve",
+    "zone": "leve",
+    "text": "Diga algo que voce quer hoje.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-2",
+    "type": "leve",
+    "zone": "leve",
+    "text": "Mostre sua parte favorita do corpo.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-3",
+    "type": "leve",
+    "zone": "leve",
+    "text": "Escolha alguem para sentar mais perto.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-4",
+    "type": "leve",
+    "zone": "leve",
+    "text": "Sussurre uma frase direta para alguem.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-5",
+    "type": "leve",
+    "zone": "leve",
+    "text": "Retire um acessorio agora.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-6",
+    "type": "leve",
+    "zone": "leve",
+    "text": "Toque a mao de alguem por 10 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-7",
+    "type": "leve",
+    "zone": "leve",
+    "text": "Escolha alguem para te dar um elogio.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-8",
+    "type": "leve",
+    "zone": "leve",
+    "text": "Fique em silencio por uma rodada.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-9",
+    "type": "leve",
+    "zone": "leve",
+    "text": "Diga uma regra que voce quer manter.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-10",
+    "type": "leve",
+    "zone": "leve",
+    "text": "Beijo rapido com quem voce escolher.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-11",
+    "type": "quente",
+    "zone": "quente",
+    "text": "Retire uma camada de roupa agora.",
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-12",
+    "type": "quente",
+    "zone": "quente",
+    "text": "Abrace alguem por 15 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-13",
+    "type": "quente",
+    "zone": "quente",
+    "text": "Deixe alguem escolher onde sentar.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "n-14",
+    "type": "quente",
+    "zone": "quente",
+    "text": "Beijo lento por 10 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-15",
+    "type": "quente",
+    "zone": "quente",
+    "text": "Escolha alguem para um toque curto.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-16",
+    "type": "quente",
+    "zone": "quente",
+    "text": "Fale uma fantasia simples.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-17",
+    "type": "quente",
+    "zone": "quente",
+    "text": "De olhos fechados por 20 segundos.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "n-18",
+    "type": "quente",
+    "zone": "quente",
+    "text": "Beijo forte em quem voce escolher.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-19",
+    "type": "quente",
+    "zone": "quente",
+    "text": "Fique sem usar as maos por 20 segundos.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "n-20",
+    "type": "quente",
+    "zone": "quente",
+    "text": "Aproxime o rosto de alguem por 10 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-21",
+    "type": "quente",
+    "zone": "quente",
+    "text": "Escolha alguem para dar uma ordem leve.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "n-22",
+    "type": "quente",
+    "zone": "quente",
+    "text": "Fique sem uma peca de roupa ate seu proximo turno.",
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-23",
+    "type": "quente",
+    "zone": "quente",
+    "text": "Diga quem manda na sua proxima acao.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "n-24",
+    "type": "quente",
+    "zone": "quente",
+    "text": "Encoste corpo com corpo por 15 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-25",
+    "type": "final",
+    "zone": "final",
+    "text": "Retire duas camadas de roupa agora.",
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-26",
+    "type": "final",
+    "zone": "final",
+    "text": "Acao intensa em dupla por 20 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-27",
+    "type": "final",
+    "zone": "final",
+    "text": "Alguem decide sua proxima acao agora.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "n-28",
+    "type": "final",
+    "zone": "final",
+    "text": "Beijo longo com quem voce escolher.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-29",
+    "type": "final",
+    "zone": "final",
+    "text": "Fique sem falar ate seu proximo turno.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-30",
+    "type": "final",
+    "zone": "final",
+    "text": "Escolha alguem para conduzir voce por 20 segundos.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "n-31",
+    "type": "final",
+    "zone": "final",
+    "text": "Toque combinado por 25 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-32",
+    "type": "final",
+    "zone": "final",
+    "text": "Fique sem usar as maos por 30 segundos.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "n-33",
+    "type": "final",
+    "zone": "final",
+    "text": "Escolha alguem para uma ordem direta.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "n-34",
+    "type": "final",
+    "zone": "final",
+    "text": "Encoste rosto com rosto por 15 segundos.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-35",
+    "type": "final",
+    "zone": "final",
+    "text": "Faca uma provocacao direta agora.",
+    "bans": { "nudez": false, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-36",
+    "type": "final",
+    "zone": "final",
+    "text": "Fique com olhos fechados por 30 segundos.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "n-37",
+    "type": "final",
+    "zone": "final",
+    "text": "Sem roupas externas ate o fim do jogo.",
+    "bans": { "nudez": true, "dominacao": false, "oral": false }
+  },
+  {
+    "id": "n-38",
+    "type": "final",
+    "zone": "final",
+    "text": "Alguem escolhe quem te guia na proxima rodada.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "n-39",
+    "type": "final",
+    "zone": "final",
+    "text": "Aproxime a boca do ouvido de alguem e diga uma ordem.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  },
+  {
+    "id": "n-40",
+    "type": "final",
+    "zone": "final",
+    "text": "Acao intensa escolhida pelo grupo.",
+    "bans": { "nudez": false, "dominacao": true, "oral": false }
+  }
+]

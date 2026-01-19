@@ -1,69 +1,74 @@
-import { includesNormalized } from "./text.js";
+const VALID_ZONES = ["leve", "quente", "final"];
+const VALID_CATEGORIES = ["verdade", "desafio", "acao_visual"];
 
-const REQUIRED_FIELDS = ["id", "type", "level", "mode", "text", "tags", "bans"];
-const VALID_TYPES = ["truth", "dare"];
-const VALID_LEVELS = ["leve", "quente", "fogo"];
+const ensureBans = (bans) => ({
+  nudez: Boolean(bans?.nudez),
+  dominacao: Boolean(bans?.dominacao),
+  oral: Boolean(bans?.oral)
+});
 
-export const validateItems = (items) => {
+const hasText = (value) => typeof value === "string" && value.trim().length > 0;
+
+export const validateActions = (items = []) => {
   const errors = [];
-  const validItems = [];
+  const valid = [];
   const ids = new Set();
   items.forEach((item, index) => {
-    const missing = REQUIRED_FIELDS.filter((field) => item[field] === undefined);
-    if (missing.length) {
-      errors.push(`Item ${index} sem campos: ${missing.join(", ")}`);
+    if (!item || typeof item !== "object") {
+      errors.push(`Acao ${index} invalida`);
       return;
     }
-    if (!VALID_TYPES.includes(item.type)) {
-      errors.push(`Item ${item.id} com type invalido: ${item.type}`);
+    if (!item.id || ids.has(item.id)) {
+      errors.push(`Acao com id invalido: ${item.id}`);
       return;
     }
-    if (!VALID_LEVELS.includes(item.level)) {
-      errors.push(`Item ${item.id} com level invalido: ${item.level}`);
+    if (!VALID_CATEGORIES.includes(item.category)) {
+      errors.push(`Acao ${item.id} com categoria invalida`);
       return;
     }
-    if (!Array.isArray(item.mode) || !item.mode.length) {
-      errors.push(`Item ${item.id} com mode invalido`);
+    if (!VALID_ZONES.includes(item.zone)) {
+      errors.push(`Acao ${item.id} com zona invalida`);
       return;
     }
-    if (!item.text || typeof item.text !== "string") {
-      errors.push(`Item ${item.id} com texto invalido`);
+    if (!hasText(item.text)) {
+      errors.push(`Acao ${item.id} sem texto`);
       return;
     }
-    if (ids.has(item.id)) {
-      errors.push(`ID duplicado: ${item.id}`);
+    if (item.category === "acao_visual" && !hasText(item.icon)) {
+      errors.push(`Acao visual ${item.id} sem icone`);
       return;
     }
     ids.add(item.id);
-    validItems.push(item);
+    valid.push({ ...item, bans: ensureBans(item.bans) });
   });
-  return { validItems, errors };
+  return { valid, errors };
 };
 
-export const filterItems = (items, options) => {
-  const { level, type, mode, filters, blockedWords, keyword } = options;
-  return items.filter((item) => {
-    if (item.level !== level || item.type !== type) return false;
-    if (!item.mode.includes(mode)) return false;
-    if (filters?.noOral && item.bans?.oral) return false;
-    if (filters?.noDom && item.bans?.dominacao) return false;
-    if (filters?.noNudez && item.bans?.nudez) return false;
-    if (blockedWords?.length) {
-      const blocked = blockedWords.some((word) => includesNormalized(item.text, word));
-      if (blocked) return false;
+export const validateCards = (items = []) => {
+  const errors = [];
+  const valid = [];
+  const ids = new Set();
+  items.forEach((item, index) => {
+    if (!item || typeof item !== "object") {
+      errors.push(`Carta ${index} invalida`);
+      return;
     }
-    if (keyword && !includesNormalized(item.text, keyword)) return false;
-    return true;
+    if (!item.id || ids.has(item.id)) {
+      errors.push(`Carta com id invalido: ${item.id}`);
+      return;
+    }
+    if (!VALID_ZONES.includes(item.zone)) {
+      errors.push(`Carta ${item.id} com zona invalida`);
+      return;
+    }
+    if (!hasText(item.text)) {
+      errors.push(`Carta ${item.id} sem texto`);
+      return;
+    }
+    ids.add(item.id);
+    valid.push({ ...item, bans: ensureBans(item.bans) });
   });
+  return { valid, errors };
 };
 
-export const getFallbackItems = (items, options) => {
-  const { level, type, mode } = options;
-  return items.filter(
-    (item) =>
-      item.fallback === true &&
-      item.level === level &&
-      item.type === type &&
-      item.mode.includes(mode)
-  );
-};
+export const withBans = (item) => ({ ...item, bans: ensureBans(item.bans) });
