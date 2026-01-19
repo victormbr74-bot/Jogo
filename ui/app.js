@@ -3,6 +3,10 @@ import { clamp, pickMany, pickOne, randInt } from "../utils/random.js";
 import { validateActions, validateCards, withBans } from "../utils/validation.js";
 import { BoardRenderer } from "./boardRenderer.js";
 import { bindModal, closeModal, openModal } from "./modals.js";
+import { initTopbar } from "./topbar.js";
+import { initActionBanner, updateActionBanner, pulseActionBanner } from "./actionBanner.js";
+import { initBottomSheets, openSheet } from "./bottomSheet.js";
+import { initBottomTabs } from "./bottomTabs.js";
 
 const USER_ACTIONS_KEY = "user_actions_v1";
 const USER_NORMAL_KEY = "user_cards_normal_v1";
@@ -73,6 +77,12 @@ const elements = {
   currentCardTitle: document.getElementById("currentCardTitle"),
   currentCardText: document.getElementById("currentCardText"),
   leaderboardList: document.getElementById("leaderboardList"),
+  actionBanner: document.getElementById("actionBanner"),
+  actionBannerBadge: document.getElementById("actionBannerBadge"),
+  actionBannerText: document.getElementById("actionBannerText"),
+  actionBannerOpen: document.getElementById("actionBannerOpen"),
+  actionBannerExecute: document.getElementById("actionBannerExecute"),
+  actionBannerRefuse: document.getElementById("actionBannerRefuse"),
   actionIcon: document.getElementById("actionIcon"),
   actionType: document.getElementById("actionType"),
   actionMeta: document.getElementById("actionMeta"),
@@ -84,8 +94,6 @@ const elements = {
   actionRefuse: document.getElementById("actionRefuse"),
   actionWarning: document.getElementById("actionWarning"),
   relaxFilters: document.getElementById("relaxFilters"),
-  actionToggle: document.getElementById("actionToggle"),
-  actionOpen: document.getElementById("actionOpen"),
   historyList: document.getElementById("historyList"),
   exportPdf: document.getElementById("exportPdf"),
   modalBackdrop: document.getElementById("modalBackdrop"),
@@ -95,6 +103,7 @@ const elements = {
   editModal: document.getElementById("editModal"),
   resetModal: document.getElementById("resetModal"),
   openSettings: document.getElementById("openSettings"),
+  resetTop: document.getElementById("resetTop"),
   resetGame: document.getElementById("resetGame"),
   resetConfirm: document.getElementById("resetConfirm"),
   resetCancel: document.getElementById("resetCancel"),
@@ -129,9 +138,7 @@ const elements = {
   editMandatory: document.getElementById("editMandatory"),
   banNudez: document.getElementById("banNudez"),
   banDom: document.getElementById("banDom"),
-  banOral: document.getElementById("banOral"),
-  sidePanel: document.querySelector(".side-panel"),
-  panelTabs: document.querySelectorAll("[data-panel-tab]")
+  banOral: document.getElementById("banOral")
 };
 
 let boardData = null;
@@ -144,9 +151,6 @@ let currentRoll = null;
 let filterWarning = false;
 let pendingCardChoices = null;
 let pendingCardResolve = null;
-let lastScrollY = window.scrollY;
-let scrollTimer = null;
-let actionCardMode = "expanded";
 
 const DEBUG = false;
 const debugLog = (...args) => {
@@ -308,7 +312,6 @@ const updateActionCard = (action) => {
     elements.actionWarning.hidden = true;
     elements.actionExecute.disabled = true;
     elements.actionRefuse.disabled = true;
-    if (elements.actionOpen) elements.actionOpen.disabled = true;
     return;
   }
   elements.actionIcon.textContent = action.icon || "🎯";
@@ -318,7 +321,6 @@ const updateActionCard = (action) => {
   elements.actionMandatory.hidden = !action.mandatory;
   elements.actionExecute.disabled = Boolean(action.readOnly);
   elements.actionRefuse.disabled = Boolean(action.readOnly);
-  if (elements.actionOpen) elements.actionOpen.disabled = false;
   elements.actionWarning.hidden = !filterWarning;
 };
 
@@ -326,48 +328,14 @@ const setPendingEvent = (action) => {
   state.pendingEvent = action ? { ...action } : null;
   renderPendingEvent();
   if (state.pendingEvent) {
-    setActionCardMode("expanded");
-    animateActionCard();
+    pulseActionBanner(elements.actionBanner);
   }
 };
 
 const renderPendingEvent = () => {
   updateActionCard(state.pendingEvent);
-  updateLayoutMetrics();
+  updateActionBanner(state.pendingEvent, elements);
   debugLog("pendingEvent", state.pendingEvent);
-};
-
-const animateActionCard = () => {
-  if (!elements.actionCard) return;
-  elements.actionCard.classList.remove("is-entering");
-  void elements.actionCard.offsetWidth;
-  elements.actionCard.classList.add("is-entering");
-  window.setTimeout(() => {
-    elements.actionCard.classList.remove("is-entering");
-  }, 240);
-};
-
-const setActionCardMode = (mode) => {
-  if (!elements.actionCard) return;
-  actionCardMode = mode;
-  const isExpanded = mode === "expanded";
-  elements.actionCard.classList.toggle("actionCard--expanded", isExpanded);
-  elements.actionCard.classList.toggle("actionCard--compact", !isExpanded);
-  if (elements.actionToggle) {
-    elements.actionToggle.textContent = isExpanded ? "Minimizar" : "Expandir";
-    elements.actionToggle.setAttribute("aria-expanded", isExpanded ? "true" : "false");
-  }
-  updateLayoutMetrics();
-};
-
-const updateLayoutMetrics = () => {
-  if (!elements.actionCard) return;
-  const root = document.documentElement.style;
-  const topbarHeight = document.querySelector(".topbar")?.offsetHeight ?? 60;
-  root.setProperty("--topbar-height", `${topbarHeight}px`);
-  const offset =
-    window.innerWidth <= 480 ? `${elements.actionCard.offsetHeight + 8}px` : "0px";
-  root.setProperty("--action-card-offset", offset);
 };
 
 const pushHistory = (entry) => {
@@ -470,21 +438,6 @@ const updateTurnUI = () => {
   renderLeaderboard();
 };
 
-const handleScroll = () => {
-  if (window.innerWidth > 480) return;
-  const currentY = window.scrollY;
-  const delta = currentY - lastScrollY;
-  if (Math.abs(delta) >= 24) {
-    const boardTop = elements.boardWrap?.getBoundingClientRect().top ?? 0;
-    const boardFocused = boardTop <= 160;
-    if (delta > 0 && boardFocused) {
-      if (actionCardMode !== "compact") setActionCardMode("compact");
-    } else if (delta < 0) {
-      if (actionCardMode !== "expanded") setActionCardMode("expanded");
-    }
-  }
-  lastScrollY = currentY;
-};
 
 const rollDice = async () => {
   const player = state.players[state.currentPlayerIndex];
@@ -1029,20 +982,6 @@ const setupListeners = () => {
   elements.centerPlayer.addEventListener("click", centerOnPlayer);
   elements.actionExecute.addEventListener("click", () => resolveAction(false));
   elements.actionRefuse.addEventListener("click", () => resolveAction(true));
-  elements.actionToggle?.addEventListener("click", () => {
-    const next = actionCardMode === "compact" ? "expanded" : "compact";
-    setActionCardMode(next);
-  });
-  elements.actionOpen?.addEventListener("click", () => setActionCardMode("expanded"));
-  elements.actionCard?.addEventListener("click", (event) => {
-    if (actionCardMode !== "compact") return;
-    const isButton = event.target.closest("button");
-    if (isButton) return;
-    setActionCardMode("expanded");
-  });
-  elements.openSettings.addEventListener("click", () =>
-    openModal(elements.settingsModal, elements.modalBackdrop)
-  );
   bindModal(elements.settingsModal, elements.modalBackdrop);
   bindModal(elements.deckModal, elements.modalBackdrop);
   bindModal(elements.editModal, elements.modalBackdrop);
@@ -1193,32 +1132,7 @@ const setupListeners = () => {
     }
   });
 
-  window.addEventListener(
-    "scroll",
-    () => {
-      if (scrollTimer) window.clearTimeout(scrollTimer);
-      scrollTimer = window.setTimeout(handleScroll, 100);
-    },
-    { passive: true }
-  );
-
-  window.addEventListener("resize", updateLayoutMetrics);
-};
-
-const setupPanelTabs = () => {
-  if (!elements.panelTabs.length || !elements.sidePanel) return;
-  const setActive = (panel) => {
-    elements.sidePanel.dataset.activePanel = panel;
-    elements.panelTabs.forEach((button) => {
-      const isActive = button.dataset.panelTab === panel;
-      button.classList.toggle("active", isActive);
-      button.setAttribute("aria-pressed", isActive ? "true" : "false");
-    });
-  };
-  elements.panelTabs.forEach((button) => {
-    button.addEventListener("click", () => setActive(button.dataset.panelTab));
-  });
-  setActive(elements.sidePanel.dataset.activePanel || "decks");
+  window.addEventListener("resize", () => {});
 };
 
 const init = async () => {
@@ -1241,7 +1155,22 @@ const init = async () => {
   setupDeckEditorEvents();
   setupTabs();
   setupListeners();
-  setupPanelTabs();
+  initBottomSheets();
+  initBottomTabs(openSheet);
+  initActionBanner(elements, {
+    onOpen: () => openSheet("actionSheet"),
+    onExecute: () => resolveAction(false),
+    onRefuse: () => resolveAction(true)
+  });
+  initTopbar({
+    openSettingsBtn: elements.openSettings,
+    resetBtn: elements.resetTop,
+    onOpenSettings: () => openModal(elements.settingsModal, elements.modalBackdrop),
+    onReset: () => {
+      if (elements.resetTotal) elements.resetTotal.checked = false;
+      openModal(elements.resetModal, elements.modalBackdrop);
+    }
+  });
   setActionCardMode("expanded");
   updateLayoutMetrics();
   applyTheme({ accent: state.hunterColor });

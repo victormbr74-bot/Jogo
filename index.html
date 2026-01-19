@@ -9,149 +9,94 @@
   <body class="theme-ember">
     <div class="app">
       <header class="topbar">
-        <div class="topbar-row container">
+        <div class="topbar-inner">
           <div class="brand">
             <div class="brand-mark">F&amp;S</div>
             <h1>Fogo &amp; Seda</h1>
           </div>
-          <button class="btn ghost" id="openSettings" aria-label="Abrir preferencias">
-            Preferencias
-          </button>
+          <div class="topbar-actions">
+            <button class="btn ghost icon" id="openSettings" aria-label="Abrir preferencias">
+              Preferencias
+            </button>
+            <button class="btn ghost icon" id="resetTop" aria-label="Resetar jogo">
+              Reset
+            </button>
+          </div>
         </div>
-        <div class="top-panel">
-          <div class="container panel-grid">
-            <div class="turn player-panel">
-              <div class="turn-label">Jogador da vez</div>
-              <div class="turn-name" id="currentPlayerName">Jogador 1</div>
-              <div class="zone-badge" id="zoneBadge">Zona Leve</div>
-              <div class="turn-status" id="turnStatus"></div>
+      </header>
+
+      <main class="main">
+        <section class="action-banner" id="actionBanner">
+          <div class="action-banner-badge" id="actionBannerBadge">Casa</div>
+          <div class="action-banner-text" id="actionBannerText">
+            Pronto para jogar. Role o dado para iniciar.
+          </div>
+          <div class="action-banner-actions">
+            <button class="btn ghost compact" id="actionBannerOpen">Abrir</button>
+            <button class="btn compact" id="actionBannerExecute">Executar</button>
+            <button class="btn ghost compact" id="actionBannerRefuse">Recusar</button>
+          </div>
+        </section>
+
+        <section class="controls">
+          <div class="turn">
+            <div class="turn-label">Jogador da vez</div>
+            <div class="turn-name" id="currentPlayerName">Jogador 1</div>
+            <div class="zone-badge" id="zoneBadge">Zona Leve</div>
+            <div class="turn-status" id="turnStatus"></div>
+          </div>
+          <div class="controlsRow">
+            <div class="dice-panel dicePanel">
+              <button class="btn dice-btn" id="rollDice" aria-label="Rolar dado">
+                Rolar dado
+              </button>
+              <div class="dice-value" id="diceValue">-</div>
             </div>
-            <div class="controlsRow">
-              <div class="dice-panel dicePanel">
-                <button class="btn dice-btn" id="rollDice" aria-label="Rolar dado">
-                  🎲 Rolar dado
-                </button>
-                <div class="dice-value" id="diceValue">-</div>
-              </div>
-              <div class="decksPanel">
-                <div class="decks-grid compact">
-                  <div class="deck compact">
-                    <div class="deck-stack normal" id="normalDeck">
-                      <div class="deck-card deck-card-bottom"></div>
-                      <div class="deck-card deck-card-mid"></div>
-                      <div class="deck-card deck-card-top"></div>
-                      <div class="deck-count" id="normalDeckCount">0</div>
-                    </div>
-                    <div class="deck-title">
-                      <span class="deck-icon" aria-hidden="true"></span>
-                      Cartas Normais
-                    </div>
+            <div class="decksPanel">
+              <div class="decks-grid compact">
+                <div class="deck compact">
+                  <div class="deck-stack normal" id="normalDeck">
+                    <div class="deck-card deck-card-bottom"></div>
+                    <div class="deck-card deck-card-mid"></div>
+                    <div class="deck-card deck-card-top"></div>
+                    <div class="deck-count" id="normalDeckCount">0</div>
                   </div>
-                  <div class="deck compact">
-                    <div class="deck-stack event6" id="event6Deck">
-                      <div class="deck-card deck-card-bottom"></div>
-                      <div class="deck-card deck-card-mid"></div>
-                      <div class="deck-card deck-card-top"></div>
-                      <div class="deck-count" id="event6DeckCount">0</div>
-                    </div>
-                    <div class="deck-title">
-                      <span class="deck-icon" aria-hidden="true"></span>
-                      Evento 6
-                    </div>
+                  <div class="deck-title">
+                    <span class="deck-icon" aria-hidden="true"></span>
+                    Cartas Normais
+                  </div>
+                </div>
+                <div class="deck compact">
+                  <div class="deck-stack event6" id="event6Deck">
+                    <div class="deck-card deck-card-bottom"></div>
+                    <div class="deck-card deck-card-mid"></div>
+                    <div class="deck-card deck-card-top"></div>
+                    <div class="deck-count" id="event6DeckCount">0</div>
+                  </div>
+                  <div class="deck-title">
+                    <span class="deck-icon" aria-hidden="true"></span>
+                    Evento 6
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </header>
-
-      <main class="layout container">
-        <section class="action-card actionCard--expanded" id="actionCard">
-          <div class="action-header">
-            <div class="action-icon" id="actionIcon">✨</div>
-            <div>
-              <div class="action-type" id="actionType">Pronto para jogar</div>
-              <div class="action-meta" id="actionMeta">Rolar o dado para comecar</div>
-            </div>
-            <button class="btn ghost action-toggle" id="actionToggle" aria-expanded="true">
-              Minimizar
-            </button>
-          </div>
-          <div class="action-body">
-            <p class="action-text" id="actionText">
-              As instrucoes aparecem aqui. Linguagem direta, curta e objetiva.
-            </p>
-            <div class="action-tags">
-              <span class="tag" id="actionMandatory" hidden>Obrigatoria</span>
-              <span class="tag warning" id="actionPenalty"
-                >Penalidade: -3 casas + 1 rodada + sem interacao</span
-              >
-            </div>
-          </div>
-          <div class="action-actions">
-            <button class="btn ghost action-open" id="actionOpen">Abrir</button>
-            <button class="btn primary" id="actionExecute">Executar</button>
-            <button class="btn ghost" id="actionRefuse">Recusar</button>
-          </div>
-          <div class="action-warning" id="actionWarning" hidden>
-            Sem opcoes com filtros atuais. Reduza filtros.
-            <button class="btn ghost" id="relaxFilters">Reduzir filtros</button>
-          </div>
         </section>
 
-        <section class="board-section">
-          <div class="board-toolbar">
-            <button class="btn ghost" id="centerPlayer">Centralizar na minha peca</button>
-            <div class="board-legend">
-              <span class="legend-item leve">Leve</span>
-              <span class="legend-item quente">Quente</span>
-              <span class="legend-item final">Final</span>
-            </div>
-          </div>
+        <section class="board-shell">
           <div class="board-wrap" id="boardWrap">
             <svg id="boardSvg" aria-label="Tabuleiro Fogo e Seda"></svg>
           </div>
+          <button class="btn ghost board-fab" id="centerPlayer">Centralizar</button>
         </section>
-
-        <aside class="side-panel" data-active-panel="decks">
-          <div class="panel-tabs" role="tablist" aria-label="Navegacao dos paines">
-            <button class="tab active" data-panel-tab="decks" aria-pressed="true">Decks</button>
-            <button class="tab" data-panel-tab="leaderboard" aria-pressed="false">Placar</button>
-            <button class="tab" data-panel-tab="history" aria-pressed="false">Historico</button>
-          </div>
-
-          <section class="decks-panel panel-block" data-panel="decks">
-            <div class="panel-header">
-              <h2>Carta atual</h2>
-            </div>
-            <div class="current-card">
-              <div class="current-card-label">Carta atual</div>
-              <div class="current-card-title" id="currentCardTitle">Carta atual</div>
-              <p class="current-card-text" id="currentCardText">
-                Nenhuma carta ativa. Rolar o dado para comecar.
-              </p>
-            </div>
-          </section>
-
-          <section class="leaderboard-panel panel-block" data-panel="leaderboard">
-            <div class="panel-header">
-              <h2>Placar</h2>
-            </div>
-            <div class="leaderboard-list" id="leaderboardList"></div>
-          </section>
-
-          <section class="history-panel panel-block" data-panel="history">
-            <div class="panel-header">
-              <h2>Historico recente</h2>
-              <button class="btn ghost" id="exportPdf">Exportar PDF</button>
-            </div>
-            <div class="history-list" id="historyList"></div>
-          </section>
-        </aside>
       </main>
-    </div>
 
+      <nav class="bottom-tabs" aria-label="Navegacao inferior">
+        <button class="tab" data-sheet-target="decksSheet">Decks</button>
+        <button class="tab" data-sheet-target="leaderboardSheet">Placar</button>
+        <button class="tab" data-sheet-target="historySheet">Historico</button>
+      </nav>
+    </div>
     <div class="modal-backdrop" id="modalBackdrop" hidden></div>
 
     <div class="modal" id="settingsModal" aria-hidden="true" role="dialog" aria-label="Preferencias">
@@ -206,6 +151,86 @@
           <button class="btn danger" id="resetConfirm">Confirmar reset</button>
         </div>
       </div>
+    </div>
+
+    <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+
+    <div class="sheet" id="actionSheet" role="dialog" aria-label="Acao atual" aria-hidden="true">
+      <div class="sheet-header">
+        <div class="sheet-title">Acao atual</div>
+        <button class="btn ghost compact" data-sheet-close>Fechar</button>
+      </div>
+      <section class="action-card actionCard--expanded" id="actionCard">
+        <div class="action-header">
+          <div class="action-icon" id="actionIcon">ƒoù</div>
+          <div>
+            <div class="action-type" id="actionType">Pronto para jogar</div>
+            <div class="action-meta" id="actionMeta">Rolar o dado para comecar</div>
+          </div>
+        </div>
+        <div class="action-body">
+          <p class="action-text" id="actionText">
+            As instrucoes aparecem aqui. Linguagem direta, curta e objetiva.
+          </p>
+          <div class="action-tags">
+            <span class="tag" id="actionMandatory" hidden>Obrigatoria</span>
+            <span class="tag warning" id="actionPenalty"
+              >Penalidade: -3 casas + 1 rodada + sem interacao</span
+            >
+          </div>
+        </div>
+        <div class="action-actions">
+          <button class="btn primary" id="actionExecute">Executar</button>
+          <button class="btn ghost" id="actionRefuse">Recusar</button>
+        </div>
+        <div class="action-warning" id="actionWarning" hidden>
+          Sem opcoes com filtros atuais. Reduza filtros.
+          <button class="btn ghost" id="relaxFilters">Reduzir filtros</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="sheet" id="decksSheet" role="dialog" aria-label="Decks" aria-hidden="true">
+      <div class="sheet-header">
+        <div class="sheet-title">Decks</div>
+        <button class="btn ghost compact" data-sheet-close>Fechar</button>
+      </div>
+      <section class="panel-block">
+        <div class="panel-header">
+          <h2>Carta atual</h2>
+        </div>
+        <div class="current-card">
+          <div class="current-card-label">Carta atual</div>
+          <div class="current-card-title" id="currentCardTitle">Carta atual</div>
+          <p class="current-card-text" id="currentCardText">
+            Nenhuma carta ativa. Rolar o dado para comecar.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <div class="sheet" id="leaderboardSheet" role="dialog" aria-label="Placar" aria-hidden="true">
+      <div class="sheet-header">
+        <div class="sheet-title">Placar</div>
+        <button class="btn ghost compact" data-sheet-close>Fechar</button>
+      </div>
+      <section class="panel-block">
+        <div class="leaderboard-list" id="leaderboardList"></div>
+      </section>
+    </div>
+
+    <div class="sheet" id="historySheet" role="dialog" aria-label="Historico" aria-hidden="true">
+      <div class="sheet-header">
+        <div class="sheet-title">Historico</div>
+        <button class="btn ghost compact" data-sheet-close>Fechar</button>
+      </div>
+      <section class="panel-block">
+        <div class="panel-header">
+          <h2>Historico recente</h2>
+          <button class="btn ghost compact" id="exportPdf">Exportar PDF</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </section>
     </div>
 
     <div class="modal" id="deckModal" aria-hidden="true" role="dialog" aria-label="Editor do baralho">
