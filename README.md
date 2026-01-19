@@ -6,7 +6,7 @@ Jogo adulto, consensual e seguro. Roda 100% no navegador (GitHub Pages), sem bac
 
 - `index.html` layout principal.
 - `styles.css` tema e responsividade.
-- `data/board.json` tabuleiro com 50 casas e coordenadas.
+- `data/board.json` tabuleiro com 50 casas em grade (row/col).
 - `data/actions.json` acoes base (verdade, desafio, acao_visual).
 - `data/normal_cards.json` baralho de cartas normais.
 - `data/event6_cards.json` baralho de cartas evento 6.
@@ -20,7 +20,8 @@ Jogo adulto, consensual e seguro. Roda 100% no navegador (GitHub Pages), sem bac
 ## Como editar o tabuleiro (board.json)
 
 - Edite `data/board.json`.
-- Cada casa exige: `id`, `x`, `y`, `zone`, `type`.
+- O tabuleiro e uma grade zig-zag: `rows`, `cols`, `tileSize`, `gap`, `padding`.
+- Cada casa exige: `id`, `row`, `col`, `zone`, `type`.
 - `zone`: `leve`, `quente`, `final`.
 - `type`: `start`, `finish`, `verdade`, `desafio`, `acao_visual`, `comprar_carta`, `especial`.
 - Para casas especiais, use:
@@ -28,15 +29,30 @@ Jogo adulto, consensual e seguro. Roda 100% no navegador (GitHub Pages), sem bac
 ```json
 {
   "id": 8,
-  "x": 650,
-  "y": 512,
+  "row": 1,
+  "col": 2,
   "zone": "leve",
   "type": "especial",
   "special": { "action": "advance", "steps": 2 }
 }
 ```
 
-- Conexoes do caminho ficam em `connections` (sequenciais) e desenham a linha do tabuleiro.
+- A ordem das casas (1..50) define o caminho em zig-zag no renderer.
+- Para ajustar o tamanho do tabuleiro, altere `tileSize`, `gap` e `padding`.
+
+## Tema, zonas e visual premium
+
+- Cores base e zonas ficam em `styles.css` via CSS variables:
+  `--bg`, `--surface`, `--surface-2`, `--text`, `--muted`,
+  `--zone-leve`, `--zone-quente`, `--zone-final`.
+- A cor do cacador e o `--accent`. Para trocar dinamicamente use:
+
+```js
+window.applyTheme({ accent: "#e04f5f" });
+```
+
+- Tiles usam brilho por zona, sombra interna e bordas destacadas.
+- Decks usam pilha inclinada e o contador mostra o total de cartas.
 
 ## Como adicionar cartas e acoes (Meu Baralho)
 
@@ -52,6 +68,13 @@ Persistencia local:
 - `user_cards_normal_v1`
 - `user_cards_event6_v1`
 
+## Pontuacao
+
+- Executar acao: +2 pontos.
+- Acoes obrigatorias executadas: +3 pontos.
+- Recusar acao: -1 ponto (minimo 0).
+- O placar destaca o lider e jogadores bloqueados.
+
 ## Checklist de testes
 
 - Dado anima e move a peca casa a casa (com 6 acionando carta evento 6).
@@ -59,5 +82,6 @@ Persistencia local:
 - Penalidade ao recusar: volta 3 casas, perde 1 rodada, bloqueio de interacao.
 - Filtros removem cartas/acoes e avisam quando nao ha equivalentes.
 - Pecas nao se sobrepoem na mesma casa (offset automatico).
+- Placar atualiza em tempo real e destaca lider/bloqueado.
 - Botao `Centralizar na minha peca` funciona no mobile.
 - PDF exporta configuracoes e historico recente (ate 30).

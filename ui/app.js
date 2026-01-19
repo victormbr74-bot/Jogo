@@ -17,6 +17,7 @@ const DEFAULTS = {
       name: "Jogador 1",
       color: PLAYER_COLORS[0],
       position: 1,
+      score: 0,
       blockedRounds: 0,
       interactionBlocked: false
     },
@@ -25,12 +26,14 @@ const DEFAULTS = {
       name: "Jogador 2",
       color: PLAYER_COLORS[1],
       position: 1,
+      score: 0,
       blockedRounds: 0,
       interactionBlocked: false
     }
   ],
   currentPlayerIndex: 0,
   filters: { noNudez: false, noDom: false, noOral: false },
+  hunterColor: "#e04f5f",
   history: [],
   gameOver: false
 };
@@ -42,6 +45,7 @@ state.players = state.players.map((player, index) => ({
   name: player.name || `Jogador ${index + 1}`,
   color: player.color || PLAYER_COLORS[index % PLAYER_COLORS.length],
   position: player.position || 1,
+  score: player.score || 0,
   blockedRounds: player.blockedRounds || 0,
   interactionBlocked: Boolean(player.interactionBlocked)
 }));
@@ -60,6 +64,13 @@ const elements = {
   boardWrap: document.getElementById("boardWrap"),
   boardSvg: document.getElementById("boardSvg"),
   centerPlayer: document.getElementById("centerPlayer"),
+  normalDeck: document.getElementById("normalDeck"),
+  event6Deck: document.getElementById("event6Deck"),
+  normalDeckCount: document.getElementById("normalDeckCount"),
+  event6DeckCount: document.getElementById("event6DeckCount"),
+  currentCardTitle: document.getElementById("currentCardTitle"),
+  currentCardText: document.getElementById("currentCardText"),
+  leaderboardList: document.getElementById("leaderboardList"),
   actionIcon: document.getElementById("actionIcon"),
   actionType: document.getElementById("actionType"),
   actionMeta: document.getElementById("actionMeta"),
@@ -108,7 +119,9 @@ const elements = {
   editMandatory: document.getElementById("editMandatory"),
   banNudez: document.getElementById("banNudez"),
   banDom: document.getElementById("banDom"),
-  banOral: document.getElementById("banOral")
+  banOral: document.getElementById("banOral"),
+  sidePanel: document.querySelector(".side-panel"),
+  panelTabs: document.querySelectorAll("[data-panel-tab]")
 };
 
 let boardData = null;
@@ -130,6 +143,46 @@ const zoneLabel = (zone) => {
 };
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const hexToRgb = (hex) => {
+  const clean = hex.replace("#", "").trim();
+  if (![3, 6].includes(clean.length)) return null;
+  const value = clean.length === 3 ? clean.split("").map((c) => c + c).join("") : clean;
+  const num = Number.parseInt(value, 16);
+  if (Number.isNaN(num)) return null;
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  };
+};
+
+const getTextOnAccent = (rgb) => {
+  if (!rgb) return "#0d0b0e";
+  const luminance = (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b) / 255;
+  return luminance > 0.6 ? "#0d0b0e" : "#f6f2f7";
+};
+
+const applyTheme = (theme = {}) => {
+  const accent = theme.accent || state.hunterColor || "#e04f5f";
+  const accent2 = theme.accent2 || "#ff7b57";
+  const accent3 = theme.accent3 || "#f6c86a";
+  const rgb = hexToRgb(accent);
+  const root = document.documentElement.style;
+  root.setProperty("--accent", accent);
+  root.setProperty("--accent-2", accent2);
+  root.setProperty("--accent-3", accent3);
+  root.setProperty("--accent-rgb", rgb ? `${rgb.r}, ${rgb.g}, ${rgb.b}` : "224, 79, 95");
+  root.setProperty("--text-on-accent", getTextOnAccent(rgb));
+  state.hunterColor = accent;
+  saveState(state);
+  if (renderer) renderer.refreshTheme();
+  renderLeaderboard();
+  updateActionCard(currentAction);
+  window.dispatchEvent(new CustomEvent("themechange", { detail: { accent, accent2, accent3 } }));
+};
+
+window.applyTheme = applyTheme;
 
 const matchesFilters = (item) => {
   if (state.filters.noNudez && item.bans?.nudez) return false;
@@ -208,7 +261,26 @@ const buildActionFromTile = (tile) => {
 
 const getTile = (id) => boardData.tiles.find((tile) => tile.id === id);
 
+const updateCurrentCard = (action) => {
+  if (!action) {
+    elements.currentCardTitle.textContent = "Carta atual";
+    elements.currentCardText.textContent = "Nenhuma carta ativa. Rolar o dado para comecar.";
+    return;
+  }
+  const sourceLabel =
+    action.source === "event6"
+      ? "Evento 6"
+      : action.source === "normal"
+      ? "Carta normal"
+      : action.source === "tile"
+      ? "Casa do tabuleiro"
+      : "Acao";
+  elements.currentCardTitle.textContent = sourceLabel;
+  elements.currentCardText.textContent = action.text || "Carta em andamento.";
+};
+
 const updateActionCard = (action) => {
+  updateCurrentCard(action);
   if (!action) {
     elements.actionIcon.textContent = "✨";
     elements.actionType.textContent = "Pronto para jogar";
@@ -281,6 +353,39 @@ const updatePlayersUI = () => {
     .join("");
 };
 
+const renderLeaderboard = () => {
+  const sorted = [...state.players].sort((a, b) => b.score - a.score);
+  const leaderScore = sorted.length ? sorted[0].score : 0;
+  elements.leaderboardList.innerHTML = sorted
+    .map((player, index) => {
+      const isLeader = leaderScore > 0 && player.score === leaderScore;
+      const isBlocked = player.blockedRounds > 0 || player.interactionBlocked;
+      const status = isBlocked ? `<span class="leaderboard-status">Bloqueado</span>` : "";
+      return `
+        <div class="leaderboard-item ${isLeader ? "is-leader" : ""} ${
+        isBlocked ? "is-blocked" : ""
+      }">
+          <div class="leaderboard-rank">${index + 1}</div>
+          <div class="leaderboard-name">${player.name}${status}</div>
+          <div class="leaderboard-score">${player.score}</div>
+        </div>
+      `;
+    })
+    .join("");
+};
+
+const updateDeckCounts = () => {
+  if (elements.normalDeckCount) elements.normalDeckCount.textContent = String(normalCards.length);
+  if (elements.event6DeckCount) elements.event6DeckCount.textContent = String(event6Cards.length);
+};
+
+const animateDeckDraw = (deckEl) => {
+  if (!deckEl) return;
+  deckEl.classList.remove("is-drawing");
+  void deckEl.offsetWidth;
+  deckEl.classList.add("is-drawing");
+};
+
 const updateTurnUI = () => {
   const player = state.players[state.currentPlayerIndex];
   const tile = getTile(player.position);
@@ -293,6 +398,8 @@ const updateTurnUI = () => {
     ? "Bloqueado (1 rodada). Clique rolar para passar."
     : "";
   elements.rollDice.disabled = Boolean(currentAction) || state.gameOver;
+  if (renderer) renderer.setActiveTile(player.position);
+  renderLeaderboard();
 };
 
 const rollDice = async () => {
@@ -314,9 +421,13 @@ const rollDice = async () => {
   const roll = randInt(1, 6);
   currentRoll = roll;
   elements.diceValue.textContent = String(roll);
+  const maxId = Math.max(...boardData.tiles.map((tile) => tile.id));
+  const destination = clamp(player.position + roll, 1, maxId);
+  renderer.setPreviewTile(destination);
   await movePlayer(player, roll);
   const tile = getTile(player.position);
   await resolveTile(tile, roll);
+  renderer.clearPreview();
   updateTurnUI();
 };
 
@@ -325,6 +436,7 @@ const movePlayer = async (player, steps, direction = 1) => {
   for (let i = 0; i < steps; i += 1) {
     player.position = clamp(player.position + direction, 1, maxId);
     renderer.updateTokens(state.players);
+    renderer.setActiveTile(player.position);
     await wait(320);
   }
 };
@@ -355,6 +467,7 @@ const resolveTile = async (tile, roll) => {
   if (roll === 6) {
     const eventCard = pickFromPool(event6Cards, tile.zone);
     if (eventCard.item) {
+      animateDeckDraw(elements.event6Deck);
       queueAction({ ...eventCard.item, source: "event6", mandatory: true, warning: eventCard.warning });
     } else {
       filterWarning = true;
@@ -388,6 +501,7 @@ const openCardsChoice = (tile) =>
       resolve(null);
       return;
     }
+    animateDeckDraw(elements.normalDeck);
     pendingCardChoices = choices;
     pendingCardResolve = (selected) => {
       closeModal(elements.cardsModal, elements.modalBackdrop);
@@ -400,8 +514,8 @@ const openCardsChoice = (tile) =>
     };
     elements.cardsGrid.innerHTML = choices
       .map(
-        (card) => `
-          <div class="card-choice" data-id="${card.id}">
+        (card, index) => `
+          <div class="card-choice" data-id="${card.id}" style="animation-delay:${index * 80}ms">
             <strong>${card.type?.toUpperCase() || "CARTA"}</strong>
             <p>${card.text}</p>
           </div>
@@ -431,6 +545,7 @@ const resolveAction = async (refused) => {
   let penaltyNote = "";
   if (refused) {
     penaltyNote = await applyPenalty(player);
+    player.score = Math.max(0, player.score - 1);
   } else if (currentAction.source === "special" && currentAction.special) {
     if (currentAction.special.action === "advance") {
       await movePlayer(player, currentAction.special.steps || 1);
@@ -475,6 +590,10 @@ const resolveAction = async (refused) => {
       }
     }
   }
+  if (!refused) {
+    player.score += currentAction?.mandatory ? 3 : 2;
+  }
+  renderLeaderboard();
   pushHistory({
     timestamp: new Date().toISOString(),
     player: player.name,
@@ -496,6 +615,7 @@ const advanceTurn = () => {
   saveState(state);
   updateTurnUI();
   updatePlayersUI();
+  renderLeaderboard();
 };
 
 const centerOnPlayer = () => {
@@ -504,10 +624,13 @@ const centerOnPlayer = () => {
   if (!tile) return;
   const rect = elements.boardWrap.getBoundingClientRect();
   const svgRect = elements.boardSvg.getBoundingClientRect();
-  const scaleX = svgRect.width / boardData.width;
-  const scaleY = svgRect.height / boardData.height;
-  const x = tile.x * scaleX;
-  const y = tile.y * scaleY;
+  const boardSize = renderer.getBoardSize();
+  const center = renderer.getTileCenterById(tile.id);
+  if (!center) return;
+  const scaleX = svgRect.width / boardSize.width;
+  const scaleY = svgRect.height / boardSize.height;
+  const x = center.x * scaleX;
+  const y = center.y * scaleY;
   elements.boardWrap.scrollTo({
     left: x - rect.width / 2,
     top: y - rect.height / 2,
@@ -629,6 +752,7 @@ const reloadCollections = async () => {
   normalCards = validNormal.map(withBans);
   event6Cards = validEvent6.map(withBans);
   renderDeckEditor();
+  updateDeckCounts();
 };
 
 const setupDeckEditorEvents = () => {
@@ -738,13 +862,16 @@ const exportPdf = () => {
 };
 
 const setupTabs = () => {
-  document.querySelectorAll(".tab").forEach((tab) => {
+  if (!elements.deckModal) return;
+  const tabs = elements.deckModal.querySelectorAll(".tab");
+  const panels = elements.deckModal.querySelectorAll(".tab-panel");
+  tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
-      document.querySelectorAll(".tab").forEach((button) => button.classList.remove("active"));
-      document.querySelectorAll(".tab-panel").forEach((panel) => panel.classList.remove("active"));
+      tabs.forEach((button) => button.classList.remove("active"));
+      panels.forEach((panel) => panel.classList.remove("active"));
       tab.classList.add("active");
       const target = tab.dataset.tab;
-      document.querySelector(`[data-panel="${target}"]`).classList.add("active");
+      elements.deckModal.querySelector(`[data-panel="${target}"]`).classList.add("active");
     });
   });
 };
@@ -770,6 +897,7 @@ const setupListeners = () => {
       name: `Jogador ${state.players.length + 1}`,
       color,
       position: 1,
+      score: 0,
       blockedRounds: 0,
       interactionBlocked: false
     });
@@ -777,6 +905,7 @@ const setupListeners = () => {
     renderer.createTokens(state.players.map((p, i) => ({ ...p, label: String(i + 1) })));
     renderer.updateTokens(state.players);
     saveState(state);
+    renderLeaderboard();
   });
   elements.removePlayer.addEventListener("click", () => {
     if (state.players.length <= 2) return;
@@ -786,6 +915,7 @@ const setupListeners = () => {
     renderer.createTokens(state.players.map((p, i) => ({ ...p, label: String(i + 1) })));
     renderer.updateTokens(state.players);
     saveState(state);
+    renderLeaderboard();
   });
 
   elements.playersList.addEventListener("input", (event) => {
@@ -890,6 +1020,22 @@ const setupListeners = () => {
   });
 };
 
+const setupPanelTabs = () => {
+  if (!elements.panelTabs.length || !elements.sidePanel) return;
+  const setActive = (panel) => {
+    elements.sidePanel.dataset.activePanel = panel;
+    elements.panelTabs.forEach((button) => {
+      const isActive = button.dataset.panelTab === panel;
+      button.classList.toggle("active", isActive);
+      button.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+  };
+  elements.panelTabs.forEach((button) => {
+    button.addEventListener("click", () => setActive(button.dataset.panelTab));
+  });
+  setActive(elements.sidePanel.dataset.activePanel || "decks");
+};
+
 const init = async () => {
   boardData = await fetch("data/board.json").then((res) => res.json());
   await reloadCollections();
@@ -902,15 +1048,19 @@ const init = async () => {
   renderer.load(boardData);
   renderer.createTokens(state.players.map((player, index) => ({ ...player, label: String(index + 1) })));
   renderer.updateTokens(state.players);
+  renderer.setActiveTile(state.players[state.currentPlayerIndex].position);
   elements.noNudez.checked = state.filters.noNudez;
   elements.noDom.checked = state.filters.noDom;
   elements.noOral.checked = state.filters.noOral;
   updatePlayersUI();
   updateTurnUI();
   renderHistory();
+  renderLeaderboard();
   setupDeckEditorEvents();
   setupTabs();
   setupListeners();
+  setupPanelTabs();
+  applyTheme({ accent: state.hunterColor });
   saveState(state);
 };
 

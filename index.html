@@ -48,7 +48,7 @@
           </div>
         </section>
 
-        <aside class="side-panel">
+        <aside class="side-panel" data-active-panel="decks">
           <section class="action-card" id="actionCard">
             <div class="action-header">
               <div class="action-icon" id="actionIcon">✨</div>
@@ -78,7 +78,53 @@
             </div>
           </section>
 
-          <section class="history-panel">
+          <div class="panel-tabs" role="tablist" aria-label="Navegacao dos paines">
+            <button class="tab active" data-panel-tab="decks" aria-pressed="true">Decks</button>
+            <button class="tab" data-panel-tab="leaderboard" aria-pressed="false">Placar</button>
+            <button class="tab" data-panel-tab="history" aria-pressed="false">Historico</button>
+          </div>
+
+          <section class="decks-panel panel-block" data-panel="decks">
+            <div class="panel-header">
+              <h2>Decks e carta atual</h2>
+            </div>
+            <div class="decks-grid">
+              <div class="deck">
+                <div class="deck-stack normal" id="normalDeck">
+                  <div class="deck-card deck-card-bottom"></div>
+                  <div class="deck-card deck-card-mid"></div>
+                  <div class="deck-card deck-card-top"></div>
+                  <div class="deck-count" id="normalDeckCount">0</div>
+                </div>
+                <div class="deck-title">Cartas Normais</div>
+              </div>
+              <div class="deck">
+                <div class="deck-stack event6" id="event6Deck">
+                  <div class="deck-card deck-card-bottom"></div>
+                  <div class="deck-card deck-card-mid"></div>
+                  <div class="deck-card deck-card-top"></div>
+                  <div class="deck-count" id="event6DeckCount">0</div>
+                </div>
+                <div class="deck-title">Evento 6</div>
+              </div>
+            </div>
+            <div class="current-card">
+              <div class="current-card-label">Carta atual</div>
+              <div class="current-card-title" id="currentCardTitle">Carta atual</div>
+              <p class="current-card-text" id="currentCardText">
+                Nenhuma carta ativa. Rolar o dado para comecar.
+              </p>
+            </div>
+          </section>
+
+          <section class="leaderboard-panel panel-block" data-panel="leaderboard">
+            <div class="panel-header">
+              <h2>Placar</h2>
+            </div>
+            <div class="leaderboard-list" id="leaderboardList"></div>
+          </section>
+
+          <section class="history-panel panel-block" data-panel="history">
             <div class="panel-header">
               <h2>Historico recente</h2>
               <button class="btn ghost" id="exportPdf">Exportar PDF</button>
