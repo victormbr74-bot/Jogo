@@ -67,6 +67,39 @@
       </header>
 
       <main class="layout container">
+        <section class="action-card actionCard--expanded" id="actionCard">
+          <div class="action-header">
+            <div class="action-icon" id="actionIcon">✨</div>
+            <div>
+              <div class="action-type" id="actionType">Pronto para jogar</div>
+              <div class="action-meta" id="actionMeta">Rolar o dado para comecar</div>
+            </div>
+            <button class="btn ghost action-toggle" id="actionToggle" aria-expanded="true">
+              Minimizar
+            </button>
+          </div>
+          <div class="action-body">
+            <p class="action-text" id="actionText">
+              As instrucoes aparecem aqui. Linguagem direta, curta e objetiva.
+            </p>
+            <div class="action-tags">
+              <span class="tag" id="actionMandatory" hidden>Obrigatoria</span>
+              <span class="tag warning" id="actionPenalty"
+                >Penalidade: -3 casas + 1 rodada + sem interacao</span
+              >
+            </div>
+          </div>
+          <div class="action-actions">
+            <button class="btn ghost action-open" id="actionOpen">Abrir</button>
+            <button class="btn primary" id="actionExecute">Executar</button>
+            <button class="btn ghost" id="actionRefuse">Recusar</button>
+          </div>
+          <div class="action-warning" id="actionWarning" hidden>
+            Sem opcoes com filtros atuais. Reduza filtros.
+            <button class="btn ghost" id="relaxFilters">Reduzir filtros</button>
+          </div>
+        </section>
+
         <section class="board-section">
           <div class="board-toolbar">
             <button class="btn ghost" id="centerPlayer">Centralizar na minha peca</button>
@@ -82,35 +115,6 @@
         </section>
 
         <aside class="side-panel" data-active-panel="decks">
-          <section class="action-card" id="actionCard">
-            <div class="action-header">
-              <div class="action-icon" id="actionIcon">✨</div>
-              <div>
-                <div class="action-type" id="actionType">Pronto para jogar</div>
-                <div class="action-meta" id="actionMeta">Rolar o dado para comecar</div>
-              </div>
-            </div>
-            <div class="action-body">
-              <p class="action-text" id="actionText">
-                As instrucoes aparecem aqui. Linguagem direta, curta e objetiva.
-              </p>
-              <div class="action-tags">
-                <span class="tag" id="actionMandatory" hidden>Obrigatoria</span>
-                <span class="tag warning" id="actionPenalty"
-                  >Penalidade: -3 casas + 1 rodada + sem interacao</span
-                >
-              </div>
-            </div>
-            <div class="action-actions">
-              <button class="btn primary" id="actionExecute">Executar</button>
-              <button class="btn ghost" id="actionRefuse">Recusar</button>
-            </div>
-            <div class="action-warning" id="actionWarning" hidden>
-              Sem opcoes com filtros atuais. Reduza filtros.
-              <button class="btn ghost" id="relaxFilters">Reduzir filtros</button>
-            </div>
-          </section>
-
           <div class="panel-tabs" role="tablist" aria-label="Navegacao dos paines">
             <button class="tab active" data-panel-tab="decks" aria-pressed="true">Decks</button>
             <button class="tab" data-panel-tab="leaderboard" aria-pressed="false">Placar</button>
@@ -176,6 +180,31 @@
           <h3>Meu Baralho</h3>
           <button class="btn" id="openDeckEditor">Abrir editor</button>
         </section>
+        <section class="modal-section">
+          <h3>Partida</h3>
+          <button class="btn ghost danger" id="resetGame">Resetar jogo</button>
+        </section>
+      </div>
+    </div>
+
+    <div class="modal" id="resetModal" aria-hidden="true" role="dialog" aria-label="Confirmar reset">
+      <div class="modal-header">
+        <h2>Resetar jogo</h2>
+        <button class="btn ghost" data-close-modal>Fechar</button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Tem certeza? Isso reinicia a partida, zera posicoes, pontuacoes, bloqueios, carta
+          atual e historico da partida.
+        </p>
+        <label class="toggle">
+          <input type="checkbox" id="resetTotal" />
+          Reset total (limpa filtros e nomes)
+        </label>
+        <div class="form-actions">
+          <button class="btn ghost" id="resetCancel">Cancelar</button>
+          <button class="btn danger" id="resetConfirm">Confirmar reset</button>
+        </div>
       </div>
     </div>
 

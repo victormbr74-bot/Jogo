@@ -21,6 +21,8 @@
   --radius-md: 14px;
   --radius-sm: 10px;
   --tile-size: 72px;
+  --topbar-height: 60px;
+  --action-card-offset: 0px;
 }
 
 * {
@@ -229,6 +231,10 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.board-section {
+  padding-top: 0;
 }
 
 .board-toolbar {
@@ -565,6 +571,24 @@ h1 {
   animation: floatIn 0.6s ease both;
 }
 
+.action-card {
+  position: relative;
+  grid-column: 1 / -1;
+}
+
+.action-card.is-entering {
+  animation: actionIn 220ms ease;
+}
+
+.action-toggle {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.action-open {
+  display: none;
+}
+
 .history-panel {
   animation-delay: 0.08s;
 }
@@ -624,6 +648,40 @@ h1 {
   display: flex;
   gap: 10px;
   margin-top: 10px;
+}
+
+.action-card.actionCard--compact {
+  padding: 12px;
+}
+
+.action-card.actionCard--compact .action-body {
+  margin-top: 6px;
+}
+
+.action-card.actionCard--compact .action-text {
+  font-size: 0.85rem;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.action-card.actionCard--compact .action-tags {
+  gap: 6px;
+}
+
+.action-card.actionCard--compact .tag {
+  font-size: 0.65rem;
+  padding: 2px 6px;
+}
+
+.action-card.actionCard--compact .action-actions {
+  gap: 8px;
+}
+
+.action-card.actionCard--compact .action-open {
+  display: inline-flex;
 }
 
 .action-warning {
@@ -695,6 +753,16 @@ select:focus-visible {
 
 .dice-btn {
   background: var(--accent-3);
+}
+
+.btn.danger {
+  background: #ff4b4b;
+  color: #1b0d0d;
+}
+
+.btn.ghost.danger {
+  border-color: rgba(255, 75, 75, 0.5);
+  color: #ffb6b6;
 }
 
 .panel-header {
@@ -997,6 +1065,14 @@ select:focus-visible {
 }
 
 @media (max-width: 480px) {
+  .action-card {
+    position: sticky;
+    top: calc(var(--topbar-height) + 8px);
+    z-index: 5;
+  }
+  .board-section {
+    padding-top: var(--action-card-offset);
+  }
   .dicePanel {
     display: grid;
     grid-template-columns: 1fr;
@@ -1047,6 +1123,17 @@ select:focus-visible {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes actionIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
