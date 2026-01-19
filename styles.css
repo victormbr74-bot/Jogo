@@ -71,25 +71,39 @@ body::after {
   z-index: 1;
 }
 
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
 .topbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
   background: linear-gradient(
     120deg,
-    rgba(var(--accent-rgb), 0.22),
-    rgba(102, 119, 255, 0.18)
+    rgba(var(--accent-rgb), 0.2),
+    rgba(102, 119, 255, 0.14)
   );
   border-bottom: 1px solid var(--stroke);
+}
+
+.topbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.top-panel {
+  background: rgba(9, 8, 12, 0.55);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .brand-mark {
@@ -106,20 +120,21 @@ body::after {
 
 h1 {
   margin: 0;
-  font-size: 1.4rem;
-}
-
-.brand p {
-  margin: 2px 0 0;
-  color: var(--muted);
-  font-family: "Fira Sans", "Segoe UI", sans-serif;
-  font-size: 0.9rem;
+  font-size: 1.25rem;
+  line-height: 1.1;
 }
 
 .turn {
   display: grid;
-  gap: 6px;
-  min-width: 200px;
+  gap: 4px;
+  min-width: 0;
+}
+
+.player-panel {
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--stroke);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .turn-label {
@@ -131,7 +146,7 @@ h1 {
 }
 
 .turn-name {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
 }
 
@@ -150,7 +165,7 @@ h1 {
 .turn-status {
   font-family: "Fira Sans", "Segoe UI", sans-serif;
   color: var(--accent-2);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .dice-panel {
@@ -159,22 +174,54 @@ h1 {
   gap: 10px;
 }
 
+.dicePanel {
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--stroke);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.decksPanel {
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--stroke);
+  background: rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+
+.controlsRow {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+
+.panel-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+  align-items: start;
+  padding-top: 8px;
+  padding-bottom: 12px;
+}
+
 .dice-value {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   border: 1px solid var(--stroke);
   display: grid;
   place-items: center;
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   background: rgba(0, 0, 0, 0.2);
 }
 
 .layout {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
-  padding: 20px;
+  gap: 16px;
+  padding: 0;
 }
 
 .board-section {
@@ -186,9 +233,13 @@ h1 {
 .board-toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
   justify-content: space-between;
+}
+
+#centerPlayer {
+  padding: 6px 12px;
 }
 
 .board-legend {
@@ -287,10 +338,19 @@ h1 {
   align-items: start;
 }
 
+.decks-grid.compact {
+  grid-template-columns: repeat(2, minmax(130px, 1fr));
+  gap: 10px;
+}
+
 .deck {
   display: grid;
   gap: 10px;
   justify-items: center;
+}
+
+.deck.compact {
+  gap: 8px;
 }
 
 .deck-stack {
@@ -351,11 +411,56 @@ h1 {
 }
 
 .deck-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-family: "Fira Sans", "Segoe UI", sans-serif;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--muted);
+}
+
+.deck-icon {
+  position: relative;
+  display: inline-block;
+  width: 14px;
+  height: 12px;
+}
+
+.deck-icon::before,
+.deck-icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.deck-icon::before {
+  transform: translate(-2px, 2px);
+  opacity: 0.6;
+}
+
+.deck-icon::after {
+  transform: translate(2px, -2px);
+  opacity: 0.85;
+}
+
+.deck.compact .deck-stack {
+  width: 112px;
+  height: 132px;
+}
+
+.deck.compact .deck-card {
+  width: 96px;
+  height: 118px;
+}
+
+.deck.compact .deck-count {
+  font-size: 0.95rem;
+  padding: 4px 9px;
 }
 
 .deck-stack.is-drawing .deck-card-top {
@@ -811,6 +916,27 @@ select:focus-visible {
   }
 }
 
+/* Panel grid */
+@media (min-width: 768px) {
+  .panel-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Controls row layout */
+@media (min-width: 600px) {
+  .controlsRow {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Controls row layout */
+@media (min-width: 1024px) {
+  .controlsRow {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+}
+
 @media (max-width: 900px) {
   .panel-tabs {
     display: flex;
@@ -826,13 +952,62 @@ select:focus-visible {
 }
 
 @media (max-width: 720px) {
-  .topbar {
-    flex-direction: column;
-    align-items: flex-start;
+  .topbar-row {
+    padding-top: 6px;
+    padding-bottom: 6px;
   }
-  .dice-panel {
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+    font-size: 0.85rem;
+  }
+  h1 {
+    font-size: 1.1rem;
+  }
+  .turn-label {
+    font-size: 0.6rem;
+  }
+  .turn-name {
+    font-size: 1rem;
+  }
+  .dicePanel {
+    gap: 8px;
+  }
+  .btn {
+    padding: 7px 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .board-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .board-legend {
+    flex-wrap: wrap;
+  }
+  #centerPlayer {
     width: 100%;
-    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .dicePanel {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+  .dicePanel .dice-value {
+    justify-self: end;
+  }
+  .decksPanel .decks-grid.compact {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .decksPanel .deck.compact {
+    min-width: 140px;
   }
 }
 

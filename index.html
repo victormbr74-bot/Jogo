@@ -9,31 +9,64 @@
   <body class="theme-ember">
     <div class="app">
       <header class="topbar">
-        <div class="brand">
-          <div class="brand-mark">F&amp;S</div>
-          <div>
+        <div class="topbar-row container">
+          <div class="brand">
+            <div class="brand-mark">F&amp;S</div>
             <h1>Fogo &amp; Seda</h1>
-            <p>Tabuleiro 18+ com dado, cartas e consequencia.</p>
+          </div>
+          <button class="btn ghost" id="openSettings" aria-label="Abrir preferencias">
+            Preferencias
+          </button>
+        </div>
+        <div class="top-panel">
+          <div class="container panel-grid">
+            <div class="turn player-panel">
+              <div class="turn-label">Jogador da vez</div>
+              <div class="turn-name" id="currentPlayerName">Jogador 1</div>
+              <div class="zone-badge" id="zoneBadge">Zona Leve</div>
+              <div class="turn-status" id="turnStatus"></div>
+            </div>
+            <div class="controlsRow">
+              <div class="dice-panel dicePanel">
+                <button class="btn dice-btn" id="rollDice" aria-label="Rolar dado">
+                  🎲 Rolar dado
+                </button>
+                <div class="dice-value" id="diceValue">-</div>
+              </div>
+              <div class="decksPanel">
+                <div class="decks-grid compact">
+                  <div class="deck compact">
+                    <div class="deck-stack normal" id="normalDeck">
+                      <div class="deck-card deck-card-bottom"></div>
+                      <div class="deck-card deck-card-mid"></div>
+                      <div class="deck-card deck-card-top"></div>
+                      <div class="deck-count" id="normalDeckCount">0</div>
+                    </div>
+                    <div class="deck-title">
+                      <span class="deck-icon" aria-hidden="true"></span>
+                      Cartas Normais
+                    </div>
+                  </div>
+                  <div class="deck compact">
+                    <div class="deck-stack event6" id="event6Deck">
+                      <div class="deck-card deck-card-bottom"></div>
+                      <div class="deck-card deck-card-mid"></div>
+                      <div class="deck-card deck-card-top"></div>
+                      <div class="deck-count" id="event6DeckCount">0</div>
+                    </div>
+                    <div class="deck-title">
+                      <span class="deck-icon" aria-hidden="true"></span>
+                      Evento 6
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="turn">
-          <div class="turn-label">Jogador da vez</div>
-          <div class="turn-name" id="currentPlayerName">Jogador 1</div>
-          <div class="zone-badge" id="zoneBadge">Zona Leve</div>
-          <div class="turn-status" id="turnStatus"></div>
-        </div>
-        <div class="dice-panel">
-          <button class="btn dice-btn" id="rollDice" aria-label="Rolar dado">
-            🎲 Rolar dado
-          </button>
-          <div class="dice-value" id="diceValue">-</div>
-        </div>
-        <button class="btn ghost" id="openSettings" aria-label="Abrir preferencias">
-          Preferencias
-        </button>
       </header>
 
-      <main class="layout">
+      <main class="layout container">
         <section class="board-section">
           <div class="board-toolbar">
             <button class="btn ghost" id="centerPlayer">Centralizar na minha peca</button>
@@ -86,27 +119,7 @@
 
           <section class="decks-panel panel-block" data-panel="decks">
             <div class="panel-header">
-              <h2>Decks e carta atual</h2>
-            </div>
-            <div class="decks-grid">
-              <div class="deck">
-                <div class="deck-stack normal" id="normalDeck">
-                  <div class="deck-card deck-card-bottom"></div>
-                  <div class="deck-card deck-card-mid"></div>
-                  <div class="deck-card deck-card-top"></div>
-                  <div class="deck-count" id="normalDeckCount">0</div>
-                </div>
-                <div class="deck-title">Cartas Normais</div>
-              </div>
-              <div class="deck">
-                <div class="deck-stack event6" id="event6Deck">
-                  <div class="deck-card deck-card-bottom"></div>
-                  <div class="deck-card deck-card-mid"></div>
-                  <div class="deck-card deck-card-top"></div>
-                  <div class="deck-count" id="event6DeckCount">0</div>
-                </div>
-                <div class="deck-title">Evento 6</div>
-              </div>
+              <h2>Carta atual</h2>
             </div>
             <div class="current-card">
               <div class="current-card-label">Carta atual</div>
