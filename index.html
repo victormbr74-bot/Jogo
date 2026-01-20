@@ -26,15 +26,46 @@
       </header>
 
       <main class="main">
-        <section class="action-banner" id="actionBanner">
-          <div class="action-banner-badge" id="actionBannerBadge">Casa</div>
-          <div class="action-banner-text" id="actionBannerText">
-            Pronto para jogar. Role o dado para iniciar.
+        <section class="current-action-box" id="currentActionBox">
+          <div class="current-action-head">
+            <div>
+              <div class="current-action-label">Desafio atual</div>
+              <div class="current-action-title-line">
+                <span class="current-action-badge" id="currentActionBadge">Aguardando</span>
+                <span class="current-action-kind" id="currentActionKind">Ação</span>
+              </div>
+            </div>
+            <button
+              class="btn ghost compact"
+              id="currentActionExpand"
+              aria-label="Ver detalhes do desafio atual"
+            >
+              Expandir
+            </button>
           </div>
-          <div class="action-banner-actions">
-            <button class="btn ghost compact" id="actionBannerOpen">Abrir</button>
-            <button class="btn compact" id="actionBannerExecute">Executar</button>
-            <button class="btn ghost compact" id="actionBannerRefuse">Recusar</button>
+          <p class="current-action-text" id="currentActionText">
+            Nenhuma ação pendente. Role o dado para iniciar.
+          </p>
+          <div class="current-action-meta">
+            <span class="current-action-meta-item" id="currentActionZone">Zona Leve</span>
+            <span
+              class="current-action-meta-item current-action-mandatory tag"
+              id="currentActionMandatory"
+              hidden
+            >
+              Obrigatória
+            </span>
+          </div>
+          <div class="current-action-penalty" id="currentActionPenalty" hidden>
+            Penalidade: -3 casas · 1 rodada · sem interação
+          </div>
+          <div class="current-action-actions">
+            <button class="btn primary" id="actionExecute">
+              Executar
+            </button>
+            <button class="btn ghost" id="actionRefuse">
+              Recusar
+            </button>
           </div>
         </section>
 
@@ -197,15 +228,12 @@
       </div>
       <section class="panel-block">
         <div class="panel-header">
-          <h2>Carta atual</h2>
+          <h2>Decks</h2>
         </div>
-        <div class="current-card">
-          <div class="current-card-label">Carta atual</div>
-          <div class="current-card-title" id="currentCardTitle">Carta atual</div>
-          <p class="current-card-text" id="currentCardText">
-            Nenhuma carta ativa. Rolar o dado para comecar.
-          </p>
-        </div>
+        <p class="panel-note">
+          A caixa acima é a única referência do desafio atual. Role o dado ou expanda para ver mais
+          detalhes.
+        </p>
       </section>
     </div>
 

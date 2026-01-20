@@ -4,7 +4,7 @@ import { validateActions, validateCards, withBans } from "../utils/validation.js
 import { BoardRenderer } from "./boardRenderer.js";
 import { bindModal, closeModal, openModal } from "./modals.js";
 import { initTopbar } from "./topbar.js";
-import { initActionBanner, updateActionBanner, pulseActionBanner } from "./actionBanner.js";
+import { initCurrentActionBox } from "./currentActionBox.js";
 import { initBottomSheets, openSheet } from "./bottomSheet.js";
 import { initBottomTabs } from "./bottomTabs.js";
 
@@ -74,15 +74,15 @@ const elements = {
   event6Deck: document.getElementById("event6Deck"),
   normalDeckCount: document.getElementById("normalDeckCount"),
   event6DeckCount: document.getElementById("event6DeckCount"),
-  currentCardTitle: document.getElementById("currentCardTitle"),
-  currentCardText: document.getElementById("currentCardText"),
   leaderboardList: document.getElementById("leaderboardList"),
-  actionBanner: document.getElementById("actionBanner"),
-  actionBannerBadge: document.getElementById("actionBannerBadge"),
-  actionBannerText: document.getElementById("actionBannerText"),
-  actionBannerOpen: document.getElementById("actionBannerOpen"),
-  actionBannerExecute: document.getElementById("actionBannerExecute"),
-  actionBannerRefuse: document.getElementById("actionBannerRefuse"),
+  currentActionBox: document.getElementById("currentActionBox"),
+  currentActionBadge: document.getElementById("currentActionBadge"),
+  currentActionKind: document.getElementById("currentActionKind"),
+  currentActionText: document.getElementById("currentActionText"),
+  currentActionZone: document.getElementById("currentActionZone"),
+  currentActionMandatory: document.getElementById("currentActionMandatory"),
+  currentActionPenalty: document.getElementById("currentActionPenalty"),
+  currentActionExpand: document.getElementById("currentActionExpand"),
   actionIcon: document.getElementById("actionIcon"),
   actionType: document.getElementById("actionType"),
   actionMeta: document.getElementById("actionMeta"),
@@ -283,26 +283,7 @@ const buildActionFromTile = (tile) => {
 
 const getTile = (id) => boardData.tiles.find((tile) => tile.id === id);
 
-const updateCurrentCard = (action) => {
-  if (!action) {
-    elements.currentCardTitle.textContent = "Carta atual";
-    elements.currentCardText.textContent = "Nenhuma carta ativa. Rolar o dado para comecar.";
-    return;
-  }
-  const sourceLabel =
-    action.source === "event6"
-      ? "Evento 6"
-      : action.source === "normal"
-      ? "Carta normal"
-      : action.source === "tile"
-      ? "Casa do tabuleiro"
-      : "Acao";
-  elements.currentCardTitle.textContent = sourceLabel;
-  elements.currentCardText.textContent = action.text || "Carta em andamento.";
-};
-
 const updateActionCard = (action) => {
-  updateCurrentCard(action);
   if (!action) {
     elements.actionIcon.textContent = "✨";
     elements.actionType.textContent = "Pronto para jogar";
@@ -327,15 +308,16 @@ const updateActionCard = (action) => {
 const setPendingEvent = (action) => {
   state.pendingEvent = action ? { ...action } : null;
   renderPendingEvent();
-  if (state.pendingEvent) {
-    pulseActionBanner(elements.actionBanner);
-  }
+};
+
+const broadcastActionChange = () => {
+  window.dispatchEvent(new CustomEvent("actionchange", { detail: state.pendingEvent }));
 };
 
 const renderPendingEvent = () => {
   updateActionCard(state.pendingEvent);
-  updateActionBanner(state.pendingEvent, elements);
   debugLog("pendingEvent", state.pendingEvent);
+  broadcastActionChange();
 };
 
 const pushHistory = (entry) => {
@@ -1157,10 +1139,8 @@ const init = async () => {
   setupListeners();
   initBottomSheets();
   initBottomTabs(openSheet);
-  initActionBanner(elements, {
-    onOpen: () => openSheet("actionSheet"),
-    onExecute: () => resolveAction(false),
-    onRefuse: () => resolveAction(true)
+  initCurrentActionBox(elements, {
+    onExpand: () => openSheet("actionSheet")
   });
   initTopbar({
     openSettingsBtn: elements.openSettings,
